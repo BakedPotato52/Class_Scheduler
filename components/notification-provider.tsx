@@ -15,12 +15,12 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         const messageListener = await onMessageListener()
         if (messageListener) {
           // Handle foreground messages
-          messageListener.then((payload: any) => {
-            toast({
-              title: payload.notification?.title || "New Notification",
-              description: payload.notification?.body || "You have a new message",
-            })
-          })
+          // messageListener.then((payload: any) => {
+          //   toast({
+          //     title: payload.notification?.title || "New Notification",
+          //     description: payload.notification?.body || "You have a new message",
+          //   })
+          // })
         }
       } catch (error) {
         console.error("Error setting up notifications:", error)
@@ -32,3 +32,4 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
   return <>{children}</>
 }
+
