@@ -17,6 +17,7 @@ interface UserData {
 interface AuthContextType {
   user: UserData | null
   loading: boolean
+  userRole?: string
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -27,6 +28,7 @@ export const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [userRole, setUserRole] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -55,5 +57,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe()
   }, [])
 
-  return <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>
+  if (user?.role === "admin") {
+    setUserRole("admin")
+  } else if (user?.role === "teacher") {
+    setUserRole("teacher")
+  } else if (user?.role === "student") {
+    setUserRole("student")
+  } else {
+    setUserRole(undefined)
+  }
+
+  return <AuthContext.Provider value={{ user, loading, userRole }}>{children}</AuthContext.Provider>
 }
