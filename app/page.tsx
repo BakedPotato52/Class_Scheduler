@@ -16,6 +16,8 @@ export default function HomePage() {
     if (!loading && user) {
       if (user.role === "admin") {
         router.push("/admin")
+      } else if (user.role === "teacher") {
+        router.push("/teacher")
       } else {
         router.push("/student")
       }
