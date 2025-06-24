@@ -17,7 +17,7 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
                     <button onClick={onMenuClick} className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
                         <Menu className="w-6 h-6 text-gray-600" />
                     </button>
-                    <h1 className="text-lg font-semibold text-gray-900">EduHub</h1>
+                    <h1 className="text-lg font-semibold text-gray-900">ClassEs</h1>
                 </div>
 
                 <div className="flex items-center space-x-3">

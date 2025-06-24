@@ -68,7 +68,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                 <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
                     <GraduationCap className="w-6 h-6 text-white" />
                 </div>
-                <span className="ml-3 text-xl font-bold text-gray-800">EduHub</span>
+                <span className="ml-3 text-xl font-bold text-gray-800">ClassEs</span>
             </div>
 
             {/* Navigation */}
@@ -96,10 +96,10 @@ export default function Sidebar({ onClose }: SidebarProps) {
             <div className="p-4 border-t border-gray-100 space-y-3">
                 <div className="flex items-center">
                     <div className="w-10 h-10 bg-gradient-to-r from-pink-400 to-red-400 rounded-full flex items-center justify-center">
-                        <span className="text-white font-semibold text-sm">{user?.email?.charAt(0).toUpperCase()}</span>
+                        <span className="text-white font-semibold text-sm">{user?.name?.charAt(0).toUpperCase()}</span>
                     </div>
                     <div className="ml-3 flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-800 truncate">{user?.email?.split("@")[0]}</p>
+                        <p className="text-sm font-medium text-gray-800 truncate">{user?.name?.split("@")[0]}</p>
                         <p className="text-xs text-gray-500 capitalize">{userRole}</p>
                     </div>
                 </div>

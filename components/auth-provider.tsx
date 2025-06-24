@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { createContext, useEffect, useState } from "react"
 import { onAuthStateChanged } from "firebase/auth"
 import { doc, getDoc } from "firebase/firestore"
@@ -43,6 +42,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               name: userData.name,
               role: userData.role,
             })
+          } else {
+            // Handle case where user exists in auth but not in firestore
+            setUser(null)
           }
         } catch (error) {
           console.error("Error fetching user data:", error)
@@ -57,15 +59,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe()
   }, [])
 
-  if (user?.role === "admin") {
-    setUserRole("admin")
-  } else if (user?.role === "teacher") {
-    setUserRole("teacher")
-  } else if (user?.role === "student") {
-    setUserRole("student")
-  } else {
-    setUserRole(undefined)
-  }
+  useEffect(() => {
+    if (user) {
+      if (user.role === "admin") {
+        setUserRole("admin")
+      } else if (user.role === "teacher") {
+        setUserRole("teacher")
+      } else if (user.role === "student") {
+        setUserRole("student")
+      } else {
+        setUserRole(undefined) // Or some default/guest role
+      }
+    } else {
+      setUserRole(undefined)
+    }
+  }, [user]) // This effect runs only when the user state changes
 
-  return <AuthContext.Provider value={{ user, loading, userRole }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ user, loading, userRole }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
