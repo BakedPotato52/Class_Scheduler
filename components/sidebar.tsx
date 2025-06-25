@@ -21,15 +21,15 @@ import { toast } from "sonner"
 import { auth } from "@/lib/firebase"
 
 const navigation = [
-    { name: "Student Dashboard", href: "/dashboard/student", icon: GraduationCap, roles: ["student"] },
-    { name: "Teacher Dashboard", href: "/dashboard/teacher", icon: UserCheck, roles: ["teacher"] },
-    { name: "Admin Dashboard", href: "/dashboard/admin", icon: Shield, roles: ["admin"] },
-    { name: "Overview", href: "/dashboard/overview", icon: Home, roles: ["student", "teacher", "admin"] },
-    { name: "Classes", href: "/dashboard/classes", icon: BookOpen, roles: ["student", "teacher", "admin"] },
-    { name: "Schedule", href: "/dashboard/schedule", icon: Calendar, roles: ["student", "teacher", "admin"] },
-    { name: "Students", href: "/dashboard/students", icon: Users, roles: ["teacher", "admin"] },
-    { name: "Notifications", href: "/dashboard/notifications", icon: Bell, roles: ["student", "teacher", "admin"] },
-    { name: "Settings", href: "/dashboard/settings", icon: Settings, roles: ["student", "teacher", "admin"] },
+    { name: "Student Dashboard", href: "/student", icon: GraduationCap, roles: ["student"] },
+    { name: "Teacher Dashboard", href: "/teacher", icon: UserCheck, roles: ["teacher"] },
+    { name: "Admin Dashboard", href: "/admin", icon: Shield, roles: ["admin"] },
+    { name: "Overview", href: "/overview", icon: Home, roles: ["student", "teacher", "admin"] },
+    { name: "Classes", href: "/classes", icon: BookOpen, roles: ["student", "teacher", "admin"] },
+    { name: "Schedule", href: "/schedule", icon: Calendar, roles: ["student", "teacher", "admin"] },
+    { name: "Students", href: "/students", icon: Users, roles: ["teacher", "admin"] },
+    { name: "Notifications", href: "/notifications", icon: Bell, roles: ["student", "teacher", "admin"] },
+    { name: "Settings", href: "/settings", icon: Settings, roles: ["student", "teacher", "admin"] },
 ]
 
 interface SidebarProps {
