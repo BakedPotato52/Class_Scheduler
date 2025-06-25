@@ -1,25 +1,66 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { Calendar, Clock, Users, ExternalLink, BookOpen } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import DashboardCard from "@/components/dashboard-card"
-import ChartCard from "@/components/chart-card"
-import TransactionCard from "@/components/transaction-card"
 import StatsCard from "@/components/stats-card"
-import { BookOpen, Calendar, Clock, Trophy } from "lucide-react"
+import { classService, studentService, type ClassData } from "@/lib/firebase-admin"
+import { useAuth } from "@/hooks/use-auth"
 
 export default function StudentDashboard() {
-  const upcomingClasses = [
-    { id: 1, title: "Mathematics 101", time: "10:00 AM", instructor: "Dr. Johnson", type: "upcoming" },
-    { id: 2, title: "Physics Lab", time: "2:00 PM", instructor: "Prof. Williams", type: "upcoming" },
-    { id: 3, title: "Chemistry", time: "4:00 PM", instructor: "Dr. Brown", type: "completed" },
-  ]
+  const { user } = useAuth()
+  const [classes, setClasses] = useState<ClassData[]>([])
+  const [loading, setLoading] = useState(true)
+  const [enrolling, setEnrolling] = useState<string | null>(null)
 
-  const weeklyProgress = [
-    { day: "Mon", classes: 3, completed: 3 },
-    { day: "Tue", classes: 2, completed: 2 },
-    { day: "Wed", classes: 4, completed: 3 },
-    { day: "Thu", classes: 3, completed: 2 },
-    { day: "Fri", classes: 2, completed: 1 },
-    { day: "Sat", classes: 1, completed: 0 },
-    { day: "Sun", classes: 0, completed: 0 },
-  ]
+  const loadClasses = async () => {
+    try {
+      const activeClasses = await classService.getActiveClasses()
+      setClasses(activeClasses)
+    } catch (error) {
+      console.error("Error loading classes:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadClasses()
+  }, [])
+
+  const handleEnroll = async (classId: string) => {
+    if (!user || !classId) return
+
+    setEnrolling(classId)
+    try {
+      await studentService.enrollInClass(user.uid, classId)
+      await loadClasses() // Refresh the classes
+    } catch (error) {
+      console.error("Error enrolling in class:", error)
+    } finally {
+      setEnrolling(null)
+    }
+  }
+
+  const formatDateTime = (dateTimeString: string) => {
+    return new Date(dateTimeString).toLocaleString()
+  }
+
+  const isEnrolled = (classItem: ClassData) => {
+    return classItem.enrolled_students?.includes(user?.uid || "") || false
+  }
+
+  const availableClasses = classes.filter((c) => !isEnrolled(c))
+  const enrolledClasses = classes.filter((c) => isEnrolled(c))
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -27,96 +68,169 @@ export default function StudentDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Student Dashboard</h1>
-          <p className="text-gray-600 mt-1 text-sm sm:text-base">Welcome back, Emily! Ready to learn today?</p>
-        </div>
-        <div className="flex items-center space-x-4">
-          <div className="relative flex-1 sm:flex-none">
-            <input
-              type="text"
-              placeholder="Search classes..."
-              className="w-full sm:w-auto pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-            />
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
-              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
-          </div>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">Discover and join classes</p>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-        <StatsCard title="Enrolled Classes" value="12" icon={BookOpen} color="blue" change="+2 this month" />
-        <StatsCard title="Completed Classes" value="8" icon={Trophy} color="green" change="67% completion rate" />
-        <StatsCard title="Upcoming Classes" value="4" icon={Calendar} color="yellow" change="This week" />
-        <StatsCard title="Study Hours" value="24" icon={Clock} color="purple" change="This month" />
-      </div>
-
-      {/* Charts and Progress */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-        <ChartCard
-          title="Weekly Progress"
-          subtitle="Classes attended this week"
-          data={weeklyProgress}
-          type="bar"
+        <StatsCard
+          title="Available Classes"
+          value={availableClasses.length.toString()}
+          icon={BookOpen}
           color="blue"
+          change="Ready to join"
         />
-        <ChartCard
-          title="Subject Performance"
-          subtitle="Your performance by subject"
-          data={[
-            { name: "Mathematics", value: 85 },
-            { name: "Physics", value: 92 },
-            { name: "Chemistry", value: 78 },
-            { name: "Biology", value: 88 },
-          ]}
-          type="donut"
-          color="multi"
+        <StatsCard
+          title="Enrolled Classes"
+          value={enrolledClasses.length.toString()}
+          icon={Calendar}
+          color="green"
+          change="Your classes"
+        />
+        <StatsCard
+          title="Total Classes"
+          value={classes.length.toString()}
+          icon={Users}
+          color="purple"
+          change="Platform wide"
+        />
+        <StatsCard
+          title="Active Now"
+          value={classes
+            .filter((c) => {
+              const now = new Date()
+              const start = new Date(c.start_time)
+              const end = new Date(c.end_time)
+              return now >= start && now <= end
+            })
+            .length.toString()}
+          icon={Clock}
+          color="yellow"
+          change="Live classes"
         />
       </div>
 
-      {/* Upcoming Classes and Notifications */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
-        <div className="xl:col-span-2">
-          <DashboardCard title="Upcoming Classes" subtitle="Your schedule for today">
-            <div className="space-y-3 sm:space-y-4">
-              {upcomingClasses.map((classItem) => (
-                <TransactionCard
-                  key={classItem.id}
-                  title={classItem.title}
-                  subtitle={classItem.instructor}
-                  time={classItem.time}
-                  type={classItem.type}
-                  amount=""
-                />
-              ))}
+      {/* Enrolled Classes */}
+      {enrolledClasses.length > 0 && (
+        <DashboardCard title="Your Enrolled Classes" subtitle="Classes you've joined">
+          <div className="space-y-4">
+            {enrolledClasses.map((classItem) => (
+              <ClassCard
+                key={classItem.id}
+                classItem={classItem}
+                isEnrolled={true}
+                onEnroll={() => { }}
+                enrolling={false}
+                formatDateTime={formatDateTime}
+              />
+            ))}
+          </div>
+        </DashboardCard>
+      )}
+
+      {/* Available Classes */}
+      <DashboardCard title="Available Classes" subtitle="Discover new classes to join">
+        {availableClasses.length === 0 ? (
+          <div className="text-center py-12">
+            <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No available classes</h3>
+            <p className="text-gray-600">Check back later for new classes</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {availableClasses.map((classItem) => (
+              <ClassCard
+                key={classItem.id}
+                classItem={classItem}
+                isEnrolled={false}
+                onEnroll={() => handleEnroll(classItem.id!)}
+                enrolling={enrolling === classItem.id}
+                formatDateTime={formatDateTime}
+              />
+            ))}
+          </div>
+        )}
+      </DashboardCard>
+    </div>
+  )
+}
+
+interface ClassCardProps {
+  classItem: ClassData
+  isEnrolled: boolean
+  onEnroll: () => void
+  enrolling: boolean
+  formatDateTime: (date: string) => string
+}
+
+function ClassCard({ classItem, isEnrolled, onEnroll, enrolling, formatDateTime }: ClassCardProps) {
+  const isClassActive = () => {
+    const now = new Date()
+    const start = new Date(classItem.start_time)
+    const end = new Date(classItem.end_time)
+    return now >= start && now <= end
+  }
+
+  return (
+    <div className="border border-gray-200 rounded-xl p-4 sm:p-6 hover:shadow-md transition-shadow">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3 mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 truncate">{classItem.class_title}</h3>
+            {isClassActive() && (
+              <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Live Now</span>
+            )}
+          </div>
+
+          <div className="mb-3">
+            <p className="text-sm text-gray-600">
+              <span className="font-medium">Teacher:</span> {classItem.teacher_info.name}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              <span>Start: {formatDateTime(classItem.start_time)}</span>
             </div>
-          </DashboardCard>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              <span>End: {formatDateTime(classItem.end_time)}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              <span>
+                {classItem.enrolled_students?.length || 0}/{classItem.max_students} students
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              <span>Duration: {classItem.duration}</span>
+            </div>
+          </div>
         </div>
 
-        <div>
-          <DashboardCard title="Quick Actions" subtitle="What would you like to do?">
-            <div className="space-y-3">
-              <button className="w-full p-3 text-left bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all duration-200">
-                <div className="font-medium text-sm sm:text-base">Join Live Class</div>
-                <div className="text-xs sm:text-sm opacity-90">Mathematics 101 starts in 10 min</div>
-              </button>
-              <button className="w-full p-3 text-left bg-gray-50 hover:bg-gray-100 rounded-xl transition-all duration-200">
-                <div className="font-medium text-gray-900 text-sm sm:text-base">View Assignments</div>
-                <div className="text-xs sm:text-sm text-gray-600">3 pending submissions</div>
-              </button>
-              <button className="w-full p-3 text-left bg-gray-50 hover:bg-gray-100 rounded-xl transition-all duration-200">
-                <div className="font-medium text-gray-900 text-sm sm:text-base">Study Materials</div>
-                <div className="text-xs sm:text-sm text-gray-600">Download resources</div>
-              </button>
-            </div>
-          </DashboardCard>
+        <div className="flex gap-2">
+          {isEnrolled ? (
+            <Button
+              size="sm"
+              onClick={() => window.open(classItem.meeting_link, "_blank")}
+              className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Join Meeting
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              onClick={onEnroll}
+              disabled={enrolling || (classItem.enrolled_students?.length || 0) >= classItem.max_students}
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+            >
+              {enrolling ? "Enrolling..." : "Enroll Now"}
+            </Button>
+          )}
         </div>
       </div>
     </div>
