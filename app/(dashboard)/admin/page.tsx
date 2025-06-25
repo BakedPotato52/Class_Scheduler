@@ -1,320 +1,205 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect } from "react"
-import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { useAuth } from "@/hooks/use-auth"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, Plus, Trash2, Users, LogOut } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-import { signOut } from "firebase/auth"
-import { auth } from "@/lib/firebase"
-import { useRouter } from "next/navigation"
+import { Users, BookOpen, GraduationCap, TrendingUp } from "lucide-react"
+import DashboardCard from "@/components/dashboard-card"
+import StatsCard from "@/components/stats-card"
+import { adminService, classService } from "@/lib/firebase-admin"
 
-interface ClassSession {
-  id: string
-  title: string
-  date: string
-  time: string
-  duration: number
-  description: string
-  createdAt: string
+interface DashboardStats {
+  totalTeachers: number
+  activeTeachers: number
+  totalClasses: number
+  activeClasses: number
+  totalStudents: number
+  completedClasses: number
 }
 
 export default function AdminDashboard() {
-  const { user, loading } = useAuth()
-  const [sessions, setSessions] = useState<ClassSession[]>([])
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [formData, setFormData] = useState({
-    title: "",
-    date: "",
-    time: "",
-    duration: 60,
-    description: "",
+  const [stats, setStats] = useState<DashboardStats>({
+    totalTeachers: 0,
+    activeTeachers: 0,
+    totalClasses: 0,
+    activeClasses: 0,
+    totalStudents: 0,
+    completedClasses: 0,
   })
-  const { toast } = useToast()
-  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [recentClasses, setRecentClasses] = useState<any[]>([])
 
-  useEffect(() => {
-    if (!loading && (!user || user.role !== "admin")) {
-      router.push("/auth/login")
+  const loadDashboardData = async () => {
+    try {
+      const [dashboardStats, classes] = await Promise.all([
+        adminService.getDashboardStats(),
+        classService.getAllClasses(),
+      ])
+
+      setStats(dashboardStats)
+      setRecentClasses(classes.slice(0, 5)) // Get 5 most recent classes
+    } catch (error) {
+      console.error("Error loading dashboard data:", error)
+    } finally {
+      setLoading(false)
     }
-  }, [user, loading, router])
+  }
 
   useEffect(() => {
-    fetchSessions()
+    loadDashboardData()
   }, [])
 
-  const fetchSessions = async () => {
-    try {
-      const q = query(collection(db, "sessions"), orderBy("date", "asc"))
-      const querySnapshot = await getDocs(q)
-      const sessionsData = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as ClassSession[]
-      setSessions(sessionsData)
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch sessions",
-        variant: "destructive",
-      })
-    }
+  const formatDateTime = (dateTimeString: string) => {
+    return new Date(dateTimeString).toLocaleString()
   }
 
-  const handleCreateSession = async (e: React.FormEvent) => {
-    e.preventDefault()
-    try {
-      await addDoc(collection(db, "sessions"), {
-        ...formData,
-        createdAt: new Date().toISOString(),
-      })
-
-      toast({
-        title: "Success",
-        description: "Class session created successfully!",
-      })
-
-      setFormData({
-        title: "",
-        date: "",
-        time: "",
-        duration: 60,
-        description: "",
-      })
-      setIsDialogOpen(false)
-      fetchSessions()
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create session",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const handleDeleteSession = async (sessionId: string) => {
-    try {
-      await deleteDoc(doc(db, "sessions", sessionId))
-      toast({
-        title: "Success",
-        description: "Session deleted successfully!",
-      })
-      fetchSessions()
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete session",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth)
-      router.push("/")
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to logout",
-        variant: "destructive",
-      })
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "active":
+        return "bg-green-100 text-green-800"
+      case "completed":
+        return "bg-blue-100 text-blue-800"
+      case "inactive":
+        return "bg-gray-100 text-gray-800"
+      default:
+        return "bg-gray-100 text-gray-800"
     }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
     )
   }
 
-  if (!user || user.role !== "admin") {
-    return null
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-600">Welcome back, {user.name}</p>
-          </div>
-          <Button onClick={handleLogout} variant="outline">
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">Monitor and manage your educational platform</p>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Sessions</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{sessions.length}</div>
-            </CardContent>
-          </Card>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        <StatsCard
+          title="Total Teachers"
+          value={stats.totalTeachers.toString()}
+          icon={Users}
+          color="blue"
+          change={`${stats.activeTeachers} currently teaching`}
+        />
+        <StatsCard
+          title="Total Classes"
+          value={stats.totalClasses.toString()}
+          icon={BookOpen}
+          color="green"
+          change={`${stats.activeClasses} active now`}
+        />
+        <StatsCard
+          title="Total Students"
+          value={stats.totalStudents.toString()}
+          icon={GraduationCap}
+          color="purple"
+          change="Platform users"
+        />
+        <StatsCard
+          title="Completed Classes"
+          value={stats.completedClasses.toString()}
+          icon={TrendingUp}
+          color="yellow"
+          change="All time"
+        />
+      </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Upcoming Sessions</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{sessions.filter((s) => new Date(s.date) >= new Date()).length}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Students</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">24</div>
-            </CardContent>
-          </Card>
+      {/* Platform Overview */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
+        <div className="xl:col-span-2">
+          <DashboardCard title="Recent Classes" subtitle="Latest classes created on the platform">
+            {recentClasses.length === 0 ? (
+              <div className="text-center py-8">
+                <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                <p className="text-gray-600">No classes created yet</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {recentClasses.map((classItem) => (
+                  <div
+                    key={classItem.id}
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-1">
+                        <h4 className="font-medium text-gray-900 truncate">{classItem.class_title}</h4>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(classItem.class_status)}`}
+                        >
+                          {classItem.class_status}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600">Teacher: {classItem.teacher_info.name}</p>
+                      <p className="text-xs text-gray-500">{formatDateTime(classItem.start_time)}</p>
+                    </div>
+                    <div className="text-right text-sm text-gray-600">
+                      <div className="flex items-center gap-1">
+                        <Users className="w-4 h-4" />
+                        <span>
+                          {classItem.enrolled_students?.length || 0}/{classItem.max_students}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </DashboardCard>
         </div>
 
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <div>
-                <CardTitle>Class Sessions</CardTitle>
-                <CardDescription>Manage your scheduled class sessions</CardDescription>
+        <div>
+          <DashboardCard title="Platform Health" subtitle="System status overview">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 bg-green-50 rounded-xl">
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium text-green-900 text-sm sm:text-base">Active Teachers</div>
+                  <div className="text-xs sm:text-sm text-green-600">
+                    {stats.activeTeachers} of {stats.totalTeachers} teachers
+                  </div>
+                </div>
+                <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0"></div>
               </div>
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Schedule Session
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Schedule New Session</DialogTitle>
-                    <DialogDescription>Create a new class session for your students</DialogDescription>
-                  </DialogHeader>
-                  <form onSubmit={handleCreateSession} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="title">Session Title</Label>
-                      <Input
-                        id="title"
-                        value={formData.title}
-                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        required
-                      />
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="date">Date</Label>
-                        <Input
-                          id="date"
-                          type="date"
-                          value={formData.date}
-                          onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="time">Time</Label>
-                        <Input
-                          id="time"
-                          type="time"
-                          value={formData.time}
-                          onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                          required
-                        />
-                      </div>
-                    </div>
+              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-xl">
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium text-blue-900 text-sm sm:text-base">Active Classes</div>
+                  <div className="text-xs sm:text-sm text-blue-600">{stats.activeClasses} classes running</div>
+                </div>
+                <div className="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
+              </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="duration">Duration (minutes)</Label>
-                      <Input
-                        id="duration"
-                        type="number"
-                        value={formData.duration}
-                        onChange={(e) => setFormData({ ...formData, duration: Number.parseInt(e.target.value) })}
-                        required
-                      />
-                    </div>
+              <div className="flex items-center justify-between p-3 bg-purple-50 rounded-xl">
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium text-purple-900 text-sm sm:text-base">Student Engagement</div>
+                  <div className="text-xs sm:text-sm text-purple-600">
+                    {((stats.totalStudents / Math.max(stats.totalClasses, 1)) * 100).toFixed(0)}% avg enrollment
+                  </div>
+                </div>
+                <div className="w-3 h-3 bg-purple-500 rounded-full flex-shrink-0"></div>
+              </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="description">Description</Label>
-                      <Input
-                        id="description"
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      />
-                    </div>
-
-                    <Button type="submit" className="w-full">
-                      Create Session
-                    </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
+              <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-xl">
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium text-yellow-900 text-sm sm:text-base">Completion Rate</div>
+                  <div className="text-xs sm:text-sm text-yellow-600">
+                    {((stats.completedClasses / Math.max(stats.totalClasses, 1)) * 100).toFixed(0)}% classes completed
+                  </div>
+                </div>
+                <div className="w-3 h-3 bg-yellow-500 rounded-full flex-shrink-0"></div>
+              </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Time</TableHead>
-                  <TableHead>Duration</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sessions.map((session) => (
-                  <TableRow key={session.id}>
-                    <TableCell className="font-medium">{session.title}</TableCell>
-                    <TableCell>{new Date(session.date).toLocaleDateString()}</TableCell>
-                    <TableCell>{session.time}</TableCell>
-                    <TableCell>{session.duration} min</TableCell>
-                    <TableCell>
-                      <Badge variant={new Date(session.date) >= new Date() ? "default" : "secondary"}>
-                        {new Date(session.date) >= new Date() ? "Upcoming" : "Past"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Button variant="outline" size="sm" onClick={() => handleDeleteSession(session.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+          </DashboardCard>
+        </div>
       </div>
     </div>
   )
