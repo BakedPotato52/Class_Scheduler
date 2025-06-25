@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 
-export default function LoginPage({
+export default function RegisterPage({
     children,
 }: {
     children: React.ReactNode
@@ -11,7 +11,7 @@ export default function LoginPage({
 
             <Suspense fallback={<div className="animate-pulse h-64 bg-gray-200 rounded-md"></div>}>
                 <main className="w-full max-sm:w-full bg-background overflow-scroll-y flex flex-col">
-                    <div className="flex-1 ">
+                    <div className="flex-1">
                         {children}
                     </div>
                 </main>

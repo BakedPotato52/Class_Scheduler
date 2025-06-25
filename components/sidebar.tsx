@@ -46,6 +46,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
     const handleLogout = async () => {
         try {
             await signOut(auth)
+            toast.success("Successfully logged out")
             Router.push("/")
         } catch (error) {
             toast.error("Failed to logout")
