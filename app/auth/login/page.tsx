@@ -1,10 +1,9 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 import { useState } from "react"
 import { GraduationCap, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
-import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,12 +13,12 @@ import { auth } from "@/lib/firebase"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
-// Fixed animation variants with proper typing
-const cardAnimation = {
-  initial: { opacity: 0, y: 20, scale: 0.95 },
-  animate: { opacity: 1, y: 0, scale: 1 },
-  transition: { duration: 0.5, ease: [0.4, 0.0, 0.2, 1] }, // Using cubic-bezier array
-}
+import { useEffect, useCallback, useMemo } from "react"
+import dynamic from "next/dynamic"
+import { Loader2 } from "lucide-react"
+const MotionDiv = dynamic(() => import("framer-motion").then((mod) => mod.motion.div), { ssr: false })
+const MotionForm = dynamic(() => import("framer-motion").then((mod) => mod.motion.form), { ssr: false })
+
 
 const gradientAnimation = {
   initial: { width: 0 },
@@ -27,11 +26,6 @@ const gradientAnimation = {
   transition: { delay: 0.2, duration: 0.8, ease: [0.4, 0.0, 0.2, 1] },
 }
 
-const formAnimation = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  transition: { delay: 0.4, duration: 0.5 },
-}
 
 const staggeredFieldAnimation = {
   initial: { opacity: 0, x: -20 },
@@ -39,10 +33,8 @@ const staggeredFieldAnimation = {
   transition: { duration: 0.4, ease: [0.4, 0.0, 0.2, 1] },
 }
 
-const MotionDiv = motion.div
-const MotionForm = motion.form
 
-export default function LoginForm() {
+const LoginPage: React.FC = React.memo(() => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -69,6 +61,24 @@ export default function LoginForm() {
     }
   }
 
+  const cardAnimation = useMemo(
+    () => ({
+      initial: { opacity: 0, y: -20 },
+      animate: { opacity: 1, y: 0 },
+      transition: { duration: 0.5 },
+    }),
+    [],
+  )
+
+  const formAnimation = useMemo(
+    () => ({
+      initial: { opacity: 0, y: 20 },
+      animate: { opacity: 1, y: 0 },
+      transition: { delay: 0.1 },
+    }),
+    [],
+  )
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
       <MotionDiv initial={cardAnimation.initial} animate={cardAnimation.animate} transition={cardAnimation.transition}>
@@ -76,7 +86,6 @@ export default function LoginForm() {
           <MotionDiv
             initial={gradientAnimation.initial}
             animate={gradientAnimation.animate}
-            transition={gradientAnimation.transition}
             className="h-2 bg-gradient-to-r from-blue-500 to-indigo-500"
           />
           <CardHeader className="space-y-2 text-center">
@@ -120,7 +129,6 @@ export default function LoginForm() {
               <MotionDiv
                 initial={staggeredFieldAnimation.initial}
                 animate={staggeredFieldAnimation.animate}
-                transition={{ ...staggeredFieldAnimation.transition, delay: 0.1 }}
               >
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
@@ -142,7 +150,6 @@ export default function LoginForm() {
               <MotionDiv
                 initial={staggeredFieldAnimation.initial}
                 animate={staggeredFieldAnimation.animate}
-                transition={{ ...staggeredFieldAnimation.transition, delay: 0.2 }}
               >
                 <div className="grid gap-2">
                   <Label htmlFor="password">Password</Label>
@@ -203,7 +210,7 @@ export default function LoginForm() {
             >
               <p className="text-sm text-muted-foreground">
                 Don't have an account?{" "}
-                <Link href="/register" className="underline underline-offset-4 hover:text-primary font-medium">
+                <Link href="/auth/register" className="underline underline-offset-4 hover:text-primary font-medium">
                   Create account
                 </Link>
               </p>
@@ -216,3 +223,6 @@ export default function LoginForm() {
     </div>
   )
 }
+)
+LoginPage.displayName = "LoginPage"
+export default LoginPage

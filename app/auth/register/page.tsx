@@ -1,8 +1,8 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { createUserWithEmailAndPassword } from "firebase/auth"
 import { doc, setDoc } from "firebase/firestore"
@@ -10,24 +10,27 @@ import { auth, db } from "@/lib/firebase"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import Link from "next/link"
-import { useToast } from "@/hooks/use-toast"
-import { Users } from "lucide-react"
 
-export default function RegisterPage() {
+import Link from "next/link"
+import { toast } from "sonner"
+import { GraduationCap } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import dynamic from "next/dynamic"
+
+const MotionDiv = dynamic(() => import("framer-motion").then((mod) => mod.motion.div), { ssr: false })
+const MotionForm = dynamic(() => import("framer-motion").then((mod) => mod.motion.form), { ssr: false })
+
+const RegisterPage: React.FC = React.memo(() => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    role: "",
+    role: "student",
   })
-  const [loading, setLoading] = useState(false)
+  const [isLoading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
-  const { toast } = useToast()
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -65,17 +68,15 @@ export default function RegisterPage() {
         console.error("Firestore error:", firestoreError)
         // If Firestore fails, we should still allow the user to continue
         // as the authentication was successful
-        toast({
-          title: "Account Created",
+        toast.success(
+          "Account Created", {
           description: "Account created successfully! Some features may be limited until setup is complete.",
-          variant: "default",
         })
         router.push("/")
         return
       }
 
-      toast({
-        title: "Success",
+      toast.success("Success", {
         description: "Account created successfully!",
       })
       router.push("/")
@@ -99,104 +100,203 @@ export default function RegisterPage() {
     }
   }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <Users className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Create account</h1>
-          <p className="text-gray-600 mt-2">Join ClassScheduler today</p>
-        </div>
+  // Enhanced animations
+  const cardAnimation = useMemo(
+    () => ({
+      initial: { opacity: 0, y: -20 },
+      animate: { opacity: 1, y: 0 },
+      transition: { duration: 0.5, ease: "easeOut" },
+    }),
+    []
+  )
 
-        <Card className="shadow-lg border-0">
-          <CardContent className="p-8">
-            <form onSubmit={handleRegister} className="space-y-6">
+  const formAnimation = useMemo(
+    () => ({
+      initial: { opacity: 0, y: 20 },
+      animate: { opacity: 1, y: 0 },
+      transition: { delay: 0.2, duration: 0.4, ease: "easeOut" },
+    }),
+    []
+  )
+
+  const gradientAnimation = useMemo(
+    () => ({
+      initial: { x: "-100%" },
+      animate: { x: 0 },
+      transition: { type: "spring", stiffness: 100, damping: 15 },
+    }),
+    []
+  )
+
+  const staggeredFieldAnimation = useMemo(
+    () => ({
+      initial: { opacity: 0, x: -10 },
+      animate: { opacity: 1, x: 0 },
+      transition: { duration: 0.3 },
+    }),
+    []
+  )
+
+  const fieldVar = useMemo(() => ({
+    hidden: { opacity: 0, x: -20 },
+    show: { opacity: 1, x: 0 },
+    transition: { duration: 0.4, ease: [0.4, 0.0, 0.2, 1] },
+  }), [])
+
+
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+      <MotionDiv
+        {...cardAnimation}
+        initial="hidden"
+        animate="show"
+        transition={{ duration: 0.5, ease: [0.4, 0.0, 0.2, 1] }}
+      >
+        <Card className="w-full max-w-md overflow-hidden">
+          {/* gradient bar */}
+          <MotionDiv
+            {...gradientAnimation}
+            initial="hidden"
+            animate="show"
+            transition={{ delay: 0.2, duration: 0.8, ease: [0.4, 0.0, 0.2, 1] }}
+            className="h-2 bg-gradient-to-r from-purple-500 to-indigo-500"
+          />
+
+          {/* header */}
+          <CardHeader className="space-y-2">
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-600 flex items-center justify-center">
+                <GraduationCap className="w-8 h-8 text-white" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
+            <CardDescription className="text-center">Enter your credentials to access your account</CardDescription>
+          </CardHeader>
+
+          {/* form */}
+          <CardContent>
+            <MotionForm
+              onSubmit={handleRegister}
+              {...formAnimation}
+              initial="hidden"
+              animate="show"
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="space-y-4"
+            >
               {error && (
-                <Alert variant="destructive" className="border-red-200 bg-red-50">
-                  <AlertDescription className="text-red-800">{error}</AlertDescription>
-                </Alert>
+                <MotionDiv
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm"
+                >
+                  {error}
+                </MotionDiv>
               )}
 
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-gray-700 font-medium">
-                  Full name
-                </Label>
+              <MotionDiv
+                variants={fieldVar}
+                initial="hidden"
+                animate="show"
+                transition={{ delay: 0.1, duration: 0.4, ease: [0.4, 0.0, 0.2, 1] }}
+              >
+                <Label htmlFor="name">Name</Label>
                 <Input
                   id="name"
                   type="text"
+                  name="name"
+                  placeholder="Enter your name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
-                  className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Enter your full name"
                 />
-              </div>
+              </MotionDiv>
 
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-700 font-medium">
-                  Email address
-                </Label>
+              <MotionDiv
+                variants={fieldVar}
+                initial="hidden"
+                animate="show"
+                transition={{ delay: 0.2, duration: 0.4, ease: [0.4, 0.0, 0.2, 1] }}
+              >
+                <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
+                  placeholder="Enter your email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
-                  className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Enter your email"
                 />
-              </div>
+              </MotionDiv>
 
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-700 font-medium">
-                  Password
-                </Label>
+              <MotionDiv
+                variants={fieldVar}
+                initial="hidden"
+                animate="show"
+                transition={{ delay: 0.3, duration: 0.4, ease: [0.4, 0.0, 0.2, 1] }}
+              >
+                <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
+                  placeholder="Enter your password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
-                  className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Create a password"
                 />
-              </div>
+              </MotionDiv>
 
-              <div className="space-y-2">
-                <Label htmlFor="role" className="text-gray-700 font-medium">
-                  Role
-                </Label>
-                <Select onValueChange={(value) => setFormData({ ...formData, role: value })}>
-                  <SelectTrigger className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                    <SelectValue placeholder="Select your role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="student">Student</SelectItem>
-                    <SelectItem value="teacher">Teacher</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
-                disabled={loading || !formData.role}
+              <MotionDiv
+                variants={fieldVar}
+                initial="hidden"
+                animate="show"
+                transition={{ delay: 0.4, duration: 0.4, ease: [0.4, 0.0, 0.2, 1] }}
               >
-                {loading ? "Creating account..." : "Create account"}
-              </Button>
-            </form>
+                <Label className="mb-2">Role</Label>
+                <RadioGroup defaultValue="student" className="flex gap-4" onValueChange={(value) => setFormData({ ...formData, role: value })}>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="student" id="student" />
+                    <Label htmlFor="student">Student</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="teacher" id="teacher" />
+                    <Label htmlFor="teacher">Teacher</Label>
+                  </div>
+                </RadioGroup>
+              </MotionDiv>
 
-            <div className="mt-6 text-center">
-              <span className="text-gray-600">Already have an account? </span>
-              <Link href="/auth/login" className="text-blue-600 hover:text-blue-700 font-medium">
+              <MotionDiv
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55, duration: 0.4 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button className="w-full" type="submit" disabled={isLoading}>
+                  {isLoading ? "Creating account…" : "Register"}
+                </Button>
+              </MotionDiv>
+            </MotionForm>
+
+            {/* footer link */}
+            <MotionDiv
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8, duration: 0.5 }}
+              className="mt-4 text-center text-sm text-muted-foreground"
+            >
+              Already have an account?{" "}
+              <Link href="/" className="underline underline-offset-4 hover:text-primary font-medium">
                 Sign in
               </Link>
-            </div>
+            </MotionDiv>
           </CardContent>
         </Card>
-      </div>
+      </MotionDiv>
     </div>
   )
-}
+})
+RegisterPage.displayName = "RegisterPage"
+export default RegisterPage
