@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import Sidebar from "@/components/sidebar"
 import MobileHeader from "@/components/mobile-header"
 import { useAuth } from "@/hooks/use-auth"
@@ -14,7 +14,6 @@ export default function DashboardLayout({
 }) {
     const { user, loading } = useAuth()
     const router = useRouter()
-    const [sidebarOpen, setSidebarOpen] = useState(false)
 
     useEffect(() => {
         if (!loading && !user) {
@@ -41,20 +40,12 @@ export default function DashboardLayout({
                 <Sidebar />
             </div>
 
-            {/* Mobile Sidebar Overlay */}
-            {sidebarOpen && (
-                <div className="fixed inset-0 z-50 lg:hidden">
-                    <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)} />
-                    <div className="fixed inset-y-0 left-0 w-64 z-50">
-                        <Sidebar onClose={() => setSidebarOpen(false)} />
-                    </div>
-                </div>
-            )}
+
 
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Mobile Header */}
                 <div className="lg:hidden">
-                    <MobileHeader onMenuClick={() => setSidebarOpen(true)} />
+                    <MobileHeader />
                 </div>
 
                 {/* Main Content */}
