@@ -66,18 +66,17 @@ const RegisterPage: React.FC = React.memo(() => {
         })
       } catch (firestoreError: any) {
         console.error("Firestore error:", firestoreError)
-        // If Firestore fails, we should still allow the user to continue
-        // as the authentication was successful
-        toast.success(
-          "Account Created", {
-          description: "Account created successfully! Some features may be limited until setup is complete.",
+        let error = firestoreError.message || "Failed to create user profile. Please try again later."
+        toast.error(
+          `${error}`, {
+          description: "Unable to create user accountS",
         })
         router.push("/")
         return
       }
 
       toast.success("Success", {
-        description: "Account created successfully!",
+        description: "Account created successfully! Some features may be limited until setup is complete",
       })
       router.push("/")
     } catch (error: any) {

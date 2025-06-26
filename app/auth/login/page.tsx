@@ -49,7 +49,7 @@ const LoginPage: React.FC = React.memo(() => {
 
     try {
       await signInWithEmailAndPassword(auth, email.toLowerCase().trim(), password)
-      toast(
+      toast.success(
         "Welcome back!", {
         description: "Successfully signed in to your account.",
       })

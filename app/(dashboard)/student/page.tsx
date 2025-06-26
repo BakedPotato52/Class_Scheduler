@@ -63,7 +63,7 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6 mt-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -132,13 +132,13 @@ export default function StudentDashboard() {
       {/* Available Classes */}
       <DashboardCard title="Available Classes" subtitle="Discover new classes to join">
         {availableClasses.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="text-center py-12 max-sm:mb-[64px]">
             <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No available classes</h3>
             <p className="text-gray-600">Check back later for new classes</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 sm:mb-[64px]">
             {availableClasses.map((classItem) => (
               <ClassCard
                 key={classItem.id}
