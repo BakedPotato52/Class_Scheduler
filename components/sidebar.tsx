@@ -80,9 +80,9 @@ export default function Sidebar() {
                             <GraduationCap className="h-5 w-5" />
                         </Button>
                         <Avatar className="h-8 w-8">
-                            <AvatarImage src="/placeholder.svg" alt={user.email || ""} />
+                            <AvatarImage src="/placeholder.svg" alt={user.name || ""} />
                             <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm">
-                                {user.email?.charAt(0).toUpperCase() || "U"}
+                                {user.name?.charAt(0).toUpperCase() || "U"}
                             </AvatarFallback>
                         </Avatar>
                     </div>
@@ -97,43 +97,21 @@ export default function Sidebar() {
             />
 
             {/* Mobile Sidebar */}
-
-
             <aside
                 className={`fixed top-16 left-0 bottom-0 w-64 bg-white border-r z-20 transform transition-transform duration-200 md:hidden ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
                     }`}
             >
-                <div className="p-4 overflow-y-auto h-full flex flex-col">
-                    <nav>
-                        {menuItems.map(section => (
+                <div className="p-4 overflow-y-auto h-full">
+                    <nav aria-label="Mobile Navigation">
+                        {menuItems.map((section) => (
                             <div key={section.title} className="mb-6">
                                 <h2 className="text-sm font-semibold text-gray-500 mb-2 px-4">{section.title}</h2>
                                 <ul className="space-y-1">
-                                    {section.items
-                                        .filter(item => item.visible.includes(role))
-                                        .map((item, index) => renderMenuItem(item, index))}
+                                    {section.items.filter((item) => item.visible.includes(role)).map((item) => renderMenuItem(item, 0))}
                                 </ul>
                             </div>
                         ))}
                     </nav>
-                    <div className="mt-auto pt-4 border-t">
-                        <div className="flex items-center gap-3 mb-4">
-                            <Avatar className="h-10 w-10 flex-shrink-0">
-                                <AvatarImage src="/placeholder.svg" />
-                                <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
-                                    {user.email?.charAt(0).toUpperCase() || "U"}
-                                </AvatarFallback>
-                            </Avatar>
-                            <div className="min-w-0">
-                                <p className="font-medium truncate">{user.email?.split("@")[0]}</p>
-                                <p className="text-xs text-muted-foreground truncate capitalize">{role}</p>
-                            </div>
-                        </div>
-                        <Button variant="ghost" onClick={handleLogout} className="w-full justify-start">
-                            <LogOut className="w-4 h-4 mr-3" />
-                            Sign Out
-                        </Button>
-                    </div>
                 </div>
             </aside>
 
@@ -167,11 +145,11 @@ export default function Sidebar() {
                             <Avatar className="h-10 w-10 flex-shrink-0">
                                 <AvatarImage src="/placeholder.svg" />
                                 <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
-                                    {user.email?.charAt(0).toUpperCase() || "U"}
+                                    {user.name?.charAt(0).toUpperCase() || "U"}
                                 </AvatarFallback>
                             </Avatar>
                             <div className="min-w-0">
-                                <p className="font-medium truncate">{user.email?.split("@")[0]}</p>
+                                <p className="font-medium truncate">{user.name}</p>
                                 <p className="text-xs text-muted-foreground truncate">{role}</p>
                             </div>
                         </div>
@@ -190,17 +168,18 @@ export default function Sidebar() {
             >
                 <ul className="flex justify-around items-center h-16">
                     {visibleItems.slice(0, 4).map((item, index) => {
-                        const Icon = item.icon as LucideIcon
+                        const IconComponent = item.icon as LucideIcon
                         const isActive = pathname === item.href
                         return (
                             <li key={item.label} className="flex-1">
                                 <Link
                                     href={item.href}
-                                    className={`flex flex-col items-center justify-center h-full ${isActive ? "text-blue-600" : "text-muted-foreground hover:text-foreground"
+                                    className={`flex flex-col items-center justify-center h-full ${isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
                                         }`}
+                                    aria-label={item.label}
                                 >
-                                    <Icon className="h-5 w-5" />
-                                    <span className="text-xs mt-1">{item.label.split(" ")[0]}</span>
+                                    <IconComponent className="h-5 w-5" />
+                                    <span className="text-xs mt-1 max-w-[90%] truncate">{item.label.split(" ")[0]}</span>
                                 </Link>
                             </li>
                         )
@@ -211,6 +190,7 @@ export default function Sidebar() {
                                 <SheetTrigger asChild>
                                     <Button
                                         variant="ghost"
+                                        aria-label="More options"
                                         className="h-full w-full flex flex-col items-center justify-center text-muted-foreground hover:text-foreground"
                                     >
                                         <MoreHorizontal className="h-5 w-5" />
@@ -218,7 +198,7 @@ export default function Sidebar() {
                                     </Button>
                                 </SheetTrigger>
                                 <SheetContent side="bottom" className="h-[70vh] pt-10">
-                                    <nav>
+                                    <nav aria-label="More Navigation Options">
                                         <ul className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                             {visibleItems.slice(4).map((item, index) => renderMenuItem(item, index + 4))}
                                         </ul>

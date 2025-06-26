@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { Suspense, useEffect } from "react"
 import Sidebar from "@/components/sidebar"
 import MobileHeader from "@/components/mobile-header"
 import { useAuth } from "@/hooks/use-auth"
@@ -36,23 +36,19 @@ export default function DashboardLayout({
     return (
         <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
             {/* Desktop Sidebar */}
-            <div className="hidden lg:block">
+            <Suspense fallback={<div className="animate-pulse h-64 bg-gray-200 rounded-md"></div>}>
                 <Sidebar />
-            </div>
+            </Suspense>
 
 
 
-            <div className="flex-1 flex flex-col min-w-0">
+
+            {/* Main Content */}
+            <main className="w-full max-sm:w-full bg-background overflow-scroll-y flex flex-col">
                 {/* Mobile Header */}
-                <div className="lg:hidden">
-                    <MobileHeader />
-                </div>
-
-                {/* Main Content */}
-                <main className="flex-1 p-4 sm:p-6">
-                    <div className="max-w-7xl mx-auto">{children}</div>
-                </main>
-            </div>
+                <MobileHeader />
+                <div className="max-w-7xl mx-auto">{children}</div>
+            </main>
         </div>
     )
 }
