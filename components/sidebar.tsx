@@ -167,7 +167,7 @@ export default function Sidebar() {
                 aria-label="Mobile Bottom Navigation"
             >
                 <ul className="flex justify-around items-center h-16">
-                    {visibleItems.slice(0, 4).map((item, index) => {
+                    {visibleItems.slice(0, 3).map((item, index) => {
                         const IconComponent = item.icon as LucideIcon
                         const isActive = pathname === item.href
                         return (
@@ -184,7 +184,7 @@ export default function Sidebar() {
                             </li>
                         )
                     })}
-                    {visibleItems.length > 4 && (
+                    {visibleItems.length > 3 && (
                         <li className="flex-1">
                             <Sheet open={open} onOpenChange={setOpen}>
                                 <SheetTrigger asChild>
