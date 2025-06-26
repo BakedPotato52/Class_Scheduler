@@ -1,11 +1,11 @@
 import React from 'react'
 
-function Classes() {
+function Students() {
     return (
         <div>
-            <h1>Classes</h1>
+
         </div>
     )
 }
 
-export default Classes
+export default Students
