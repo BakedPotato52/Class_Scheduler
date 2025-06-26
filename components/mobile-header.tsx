@@ -8,11 +8,12 @@ export default function MobileHeader() {
     const { user } = useAuth()
 
     return (
-        <div className="bg-white shadow-sm border-b border-gray-200 px-4 py-3">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                    <Link href="/" className="flex items-center gap-2 mb-8">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white">
+        <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+
+            <nav className="container flex h-16 items-center justify-between px-4 md:px-6">
+                <div className="flex-1 max-w-md">
+                    <Link href="/" className="flex items-center gap-2 ">
+                        <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white">
                             <GraduationCap className="w-6 h-6" />
                         </div>
                         <span className="bg-gradient-to-r from-blue-600 to-indigo-600 font-bold text-xl bg-clip-text text-transparent">
@@ -21,7 +22,7 @@ export default function MobileHeader() {
                     </Link>
                 </div>
 
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center gap-2 sm:gap-4">
                     <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
                         <Search className="w-5 h-5 text-gray-600" />
                     </button>
@@ -33,7 +34,7 @@ export default function MobileHeader() {
                         <span className="text-white font-semibold text-sm">{user?.name?.charAt(0).toUpperCase()}</span>
                     </div>
                 </div>
-            </div>
-        </div>
+            </nav>
+        </header>
     )
 }
