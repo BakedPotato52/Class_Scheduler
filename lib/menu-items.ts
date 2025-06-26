@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/use-auth"
 import { Home, BookOpen, Users, Calendar, Bell, Settings, UserCheck, Shield, User } from "lucide-react"
 
 export type UserRole = "student" | "teacher" | "admin"
@@ -14,6 +15,7 @@ export type MenuSection = {
     items: MenuItem[]
 }
 
+
 export const getFilteredMenuItems = (role: UserRole): MenuSection[] => [
     {
         title: "Main",
@@ -27,31 +29,31 @@ export const getFilteredMenuItems = (role: UserRole): MenuSection[] => [
             {
                 label: "Classes",
                 icon: BookOpen,
-                href: `/classes`,
+                href: `/${role}/classes`,
                 visible: ["student", "teacher", "admin"],
             },
             {
                 label: "Schedule",
                 icon: Calendar,
-                href: `/schedule`,
+                href: `/${role}/schedule`,
                 visible: ["student", "teacher", "admin"],
             },
             {
                 label: "Students",
                 icon: Users,
-                href: `/students`,
+                href: `/${role}/students`,
                 visible: ["teacher", "admin"],
             },
             {
                 label: "Teachers",
                 icon: UserCheck,
-                href: `/teachers`,
+                href: `/${role}/teachers`,
                 visible: ["admin"],
             },
             {
                 label: "Analytics",
                 icon: Shield,
-                href: `/analytics`,
+                href: `/${role}/analytics`,
                 visible: ["admin"],
             },
         ],
@@ -62,19 +64,19 @@ export const getFilteredMenuItems = (role: UserRole): MenuSection[] => [
             {
                 label: "Notifications",
                 icon: Bell,
-                href: `/notifications`,
+                href: `/${role}/notifications`,
                 visible: ["student", "teacher", "admin"],
             },
             {
                 label: "Profile",
                 icon: User,
-                href: `/profile`,
+                href: `/${role}/profile`,
                 visible: ["student", "teacher", "admin"],
             },
             {
                 label: "Settings",
                 icon: Settings,
-                href: `/settings`,
+                href: `/${role}/settings`,
                 visible: ["student", "teacher", "admin"],
             },
         ],

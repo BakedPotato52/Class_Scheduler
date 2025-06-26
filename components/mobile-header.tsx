@@ -8,10 +8,10 @@ export default function MobileHeader() {
     const { user } = useAuth()
 
     return (
-        <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <header className="sticky md:hidden top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
 
             <nav className="container flex h-16 items-center justify-between px-4 md:px-6">
-                <div className="flex-1 max-w-md">
+                <div className="flex-1 max-w-md ">
                     <Link href="/" className="flex items-center gap-2 ">
                         <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white">
                             <GraduationCap className="w-6 h-6" />
