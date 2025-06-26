@@ -47,17 +47,13 @@ export default function Sidebar() {
         const isActive = pathname === item.href
 
         return (
-            <li key={item.label} className={`index >= 4 ? "lg:hidden" : ""`}>
+            <li key={item.label} className={index >= 4 ? "lg:hidden" : ""}>
                 <Link
                     href={item.href}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:bg-muted"
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 ${isActive ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-muted dark:hover:bg-muted"
                         }`}
-                    onClick={() => {
-                        setOpen(false)
-                        setIsMobileMenuOpen(false)
-                    }}
+                    aria-label={item.label}
+                    onClick={() => setOpen(false)}
                 >
                     <Icon className="w-5 h-5 flex-shrink-0" />
                     <span className="font-medium truncate">{item.label}</span>
@@ -69,7 +65,7 @@ export default function Sidebar() {
     return (
         <>
             {/* Mobile Header */}
-            <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b z-30 shadow-sm">
+            {/* <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b z-30 shadow-sm">
                 <div className="flex items-center justify-between h-full px-4">
                     <Link href="/" className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white">
@@ -91,7 +87,7 @@ export default function Sidebar() {
                         </Avatar>
                     </div>
                 </div>
-            </header>
+            </header> */}
 
             {/* Overlay */}
             <div
@@ -101,8 +97,10 @@ export default function Sidebar() {
             />
 
             {/* Mobile Sidebar */}
+
+
             <aside
-                className={`fixed top-16 left-0 bottom-0 w-64 bg-white border-r z-20 transform transition-transform duration-200 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+                className={`fixed top-16 left-0 bottom-0 w-64 bg-white border-r z-20 transform transition-transform duration-200 md:hidden ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
                     }`}
             >
                 <div className="p-4 overflow-y-auto h-full flex flex-col">
@@ -140,7 +138,7 @@ export default function Sidebar() {
             </aside>
 
             {/* Desktop Sidebar */}
-            <aside className="hidden md:flex flex-col w-64 h-screen bg-white border-r shadow-sm">
+            <aside className="hidden sticky top-0 md:flex flex-col w-64 h-screen bg-background border-r z-20 shadow-lg">
                 <div className="flex flex-col h-full overflow-hidden">
                     <div className="p-6">
                         <Link href="/" className="flex items-center gap-2 mb-8">
@@ -148,7 +146,7 @@ export default function Sidebar() {
                                 <GraduationCap className="w-6 h-6" />
                             </div>
                             <span className="bg-gradient-to-r from-blue-600 to-indigo-600 font-bold text-xl bg-clip-text text-transparent">
-                                EduHub
+                                ClassEs
                             </span>
                         </Link>
                         <nav>
@@ -186,7 +184,10 @@ export default function Sidebar() {
             </aside>
 
             {/* Bottom Navigation */}
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-20">
+            <nav
+                className="md:hidden min-w-screen fixed bottom-0 left-0 right-0 bg-background border-t z-20"
+                aria-label="Mobile Bottom Navigation"
+            >
                 <ul className="flex justify-around items-center h-16">
                     {visibleItems.slice(0, 4).map((item, index) => {
                         const Icon = item.icon as LucideIcon
