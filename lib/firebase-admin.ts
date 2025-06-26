@@ -10,6 +10,7 @@ import {
     orderBy,
     getDoc,
     Timestamp,
+    limit,
 } from "firebase/firestore"
 import { db } from "./firebase"
 
@@ -34,6 +35,8 @@ export interface ClassData {
     meeting_link: string
     class_status: "active" | "inactive" | "completed"
     duration: string
+    description?: string
+    subject?: string
     created_at?: Timestamp
     enrolled_students?: string[]
 }
@@ -46,7 +49,7 @@ export interface StudentData {
     created_at: Timestamp
 }
 
-// Class CRUD Operations
+// Enhanced Class CRUD Operations
 export const classService = {
     // Create a new class
     async createClass(classData: Omit<ClassData, "id" | "created_at">): Promise<string> {
@@ -63,18 +66,45 @@ export const classService = {
         }
     },
 
-    // Get all classes
-    async getAllClasses(): Promise<ClassData[]> {
+    // Get all classes with optional filtering
+    async getAllClasses(filters?: {
+        status?: string
+        teacherId?: string
+        studentId?: string
+        limit?: number
+    }): Promise<ClassData[]> {
         try {
-            const q = query(collection(db, "classes"), orderBy("created_at", "desc"))
+            let q = query(collection(db, "classes"), orderBy("created_at", "desc"))
+
+            if (filters?.status) {
+                q = query(q, where("class_status", "==", filters.status))
+            }
+
+            if (filters?.teacherId) {
+                q = query(q, where("teacher_id", "==", filters.teacherId))
+            }
+
+            if (filters?.limit) {
+                q = query(q, limit(filters.limit))
+            }
+
             const querySnapshot = await getDocs(q)
-            return querySnapshot.docs.map(
+            let classes = querySnapshot.docs.map(
                 (doc) =>
                     ({
                         id: doc.id,
                         ...doc.data(),
                     }) as ClassData,
             )
+
+            // Filter by student enrollment if studentId is provided
+            if (filters?.studentId) {
+                classes = classes.filter((classItem) =>
+                    classItem.enrolled_students?.includes(filters.studentId!)
+                )
+            }
+
+            return classes
         } catch (error) {
             console.error("Error fetching classes:", error)
             throw error
@@ -84,7 +114,11 @@ export const classService = {
     // Get classes by teacher
     async getClassesByTeacher(teacherId: string): Promise<ClassData[]> {
         try {
-            const q = query(collection(db, "classes"), where("teacher_id", "==", teacherId), orderBy("created_at", "desc"))
+            const q = query(
+                collection(db, "classes"),
+                where("teacher_id", "==", teacherId),
+                orderBy("created_at", "desc")
+            )
             const querySnapshot = await getDocs(q)
             return querySnapshot.docs.map(
                 (doc) =>
@@ -102,7 +136,11 @@ export const classService = {
     // Get active classes for students
     async getActiveClasses(): Promise<ClassData[]> {
         try {
-            const q = query(collection(db, "classes"), where("class_status", "==", "active"), orderBy("created_at", "desc"))
+            const q = query(
+                collection(db, "classes"),
+                where("class_status", "==", "active"),
+                orderBy("created_at", "desc")
+            )
             const querySnapshot = await getDocs(q)
             return querySnapshot.docs.map(
                 (doc) =>
@@ -113,6 +151,31 @@ export const classService = {
             )
         } catch (error) {
             console.error("Error fetching active classes:", error)
+            throw error
+        }
+    },
+
+    // Get classes for a specific date range (for calendar)
+    async getClassesByDateRange(startDate: Date, endDate: Date): Promise<ClassData[]> {
+        try {
+            const q = query(collection(db, "classes"), orderBy("start_time", "asc"))
+            const querySnapshot = await getDocs(q)
+
+            const classes = querySnapshot.docs.map(
+                (doc) =>
+                    ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }) as ClassData,
+            )
+
+            // Filter by date range
+            return classes.filter((classItem) => {
+                const classStart = new Date(classItem.start_time)
+                return classStart >= startDate && classStart <= endDate
+            })
+        } catch (error) {
+            console.error("Error fetching classes by date range:", error)
             throw error
         }
     },
@@ -134,6 +197,25 @@ export const classService = {
             await deleteDoc(doc(db, "classes", classId))
         } catch (error) {
             console.error("Error deleting class:", error)
+            throw error
+        }
+    },
+
+    // Get class by ID
+    async getClassById(classId: string): Promise<ClassData | null> {
+        try {
+            const docRef = doc(db, "classes", classId)
+            const docSnap = await getDoc(docRef)
+
+            if (docSnap.exists()) {
+                return {
+                    id: docSnap.id,
+                    ...docSnap.data(),
+                } as ClassData
+            }
+            return null
+        } catch (error) {
+            console.error("Error fetching class:", error)
             throw error
         }
     },
@@ -230,6 +312,27 @@ export const studentService = {
             }
         } catch (error) {
             console.error("Error enrolling student:", error)
+            throw error
+        }
+    },
+
+    // Unenroll student from class
+    async unenrollFromClass(studentId: string, classId: string): Promise<void> {
+        try {
+            const classRef = doc(db, "classes", classId)
+            const classDoc = await getDoc(classRef)
+
+            if (classDoc.exists()) {
+                const classData = classDoc.data() as ClassData
+                const enrolledStudents = classData.enrolled_students || []
+
+                const updatedStudents = enrolledStudents.filter(id => id !== studentId)
+                await updateDoc(classRef, {
+                    enrolled_students: updatedStudents,
+                })
+            }
+        } catch (error) {
+            console.error("Error unenrolling student:", error)
             throw error
         }
     },
