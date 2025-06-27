@@ -173,7 +173,7 @@ function ClassCard({ classItem, isEnrolled, onEnroll, enrolling, formatDateTime 
   }
 
   return (
-    <div className="border border-gray-200 rounded-xl p-4 sm:p-6 hover:shadow-md transition-shadow">
+    <div className="border border-gray-200 rounded-xl p-4 sm:p-6 hover:shadow-lg transition-shadow">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2">
