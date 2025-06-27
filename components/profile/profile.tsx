@@ -1,14 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { User, Mail, Phone, MapPin, Calendar, Edit3, Save, X, Camera, Loader2 } from "lucide-react"
+import { User, Mail, Phone, MapPin, Calendar, Edit3, Save, X, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { ProfilePictureUpload } from "@/components/profile/profile-picture-upload"
 import { profileService, type UserProfile } from "@/lib/firebase-admin"
 import { useAuth } from "@/hooks/use-auth"
 import { formatDistanceToNow } from "date-fns"
@@ -139,6 +139,27 @@ export default function ProfilePage() {
         setError(null)
     }
 
+    const handleAvatarUploadSuccess = async (imageUrl: string, publicId: string) => {
+        if (!user || !profile) return
+
+        try {
+            const updates: Partial<UserProfile> = {
+                avatar: imageUrl,
+                avatar_public_id: publicId,
+            }
+
+            await profileService.updateUserProfile(user.uid, updates)
+            setProfile((prev) => (prev ? { ...prev, ...updates } : null))
+        } catch (error) {
+            console.error("Error updating avatar:", error)
+            setError("Failed to update profile picture.")
+        }
+    }
+
+    const handleAvatarUploadError = (errorMessage: string) => {
+        setError(errorMessage)
+    }
+
     const formatJoinDate = (timestamp: any) => {
         try {
             const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp)
@@ -183,7 +204,7 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className="space-y-6 mt-8">
+        <div className="space-y-6">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
@@ -225,24 +246,17 @@ export default function ProfilePage() {
                 {/* Profile Overview */}
                 <Card className="lg:col-span-1">
                     <CardHeader className="text-center">
-                        <div className="relative mx-auto">
-                            <Avatar className="h-24 w-24 mx-auto">
-                                <AvatarImage src={profile.avatar || "/placeholder.svg"} alt={profile.name} />
-                                <AvatarFallback className="text-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
-                                    {profile.name.charAt(0).toUpperCase()}
-                                </AvatarFallback>
-                            </Avatar>
-                            {editing && (
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0 bg-transparent"
-                                    disabled={saving}
-                                >
-                                    <Camera className="h-4 w-4" />
-                                </Button>
-                            )}
-                        </div>
+                        {/* Profile Picture Upload */}
+                        <ProfilePictureUpload
+                            currentImageUrl={profile.avatar}
+                            currentPublicId={profile.avatar_public_id}
+                            userName={profile.name}
+                            onUploadSuccess={handleAvatarUploadSuccess}
+                            onUploadError={handleAvatarUploadError}
+                            disabled={saving}
+                            size="xl"
+                        />
+
                         <CardTitle className="mt-4">{profile.name}</CardTitle>
                         <Badge className={getRoleColor(profile.role)}>{profile.role}</Badge>
                     </CardHeader>

@@ -72,6 +72,7 @@ export interface UserProfile {
     email: string
     role: "student" | "teacher" | "admin"
     avatar?: string
+    avatar_public_id?: string
     bio?: string
     phone?: string
     location?: string
