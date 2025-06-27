@@ -11,6 +11,7 @@ interface UserData {
   email: string | null
   name: string
   role: string
+  avatar?: string // Optional avatar URL
 }
 
 interface AuthContextType {
@@ -41,6 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               email: firebaseUser.email,
               name: userData.name,
               role: userData.role,
+              avatar: userData.avatar || "",
             })
           } else {
             // Handle case where user exists in auth but not in firestore

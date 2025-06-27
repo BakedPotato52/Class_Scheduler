@@ -1,14 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { User, Mail, Phone, MapPin, Calendar, Edit3, Save, X, Loader2 } from "lucide-react"
+import { User, Mail, Phone, MapPin, Calendar, Edit3, Save, X, Loader2, Camera } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { ProfilePictureUpload } from "@/components/profile/profile-picture-upload"
+import { ProfilePictureUploadModal } from "@/components/modals/profile-picture-upload-modal"
 import { profileService, type UserProfile } from "@/lib/firebase-admin"
 import { useAuth } from "@/hooks/use-auth"
 import { formatDistanceToNow } from "date-fns"
@@ -21,6 +22,7 @@ export default function ProfilePage() {
     const [editing, setEditing] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
+    const [showUploadModal, setShowUploadModal] = useState(false)
 
     // Form state
     const [formData, setFormData] = useState({
@@ -150,6 +152,10 @@ export default function ProfilePage() {
 
             await profileService.updateUserProfile(user.uid, updates)
             setProfile((prev) => (prev ? { ...prev, ...updates } : null))
+            setSuccess("Profile picture updated successfully!")
+
+            // Clear success message after 3 seconds
+            setTimeout(() => setSuccess(null), 3000)
         } catch (error) {
             console.error("Error updating avatar:", error)
             setError("Failed to update profile picture.")
@@ -204,7 +210,7 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 mt-8">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
@@ -246,16 +252,27 @@ export default function ProfilePage() {
                 {/* Profile Overview */}
                 <Card className="lg:col-span-1">
                     <CardHeader className="text-center">
-                        {/* Profile Picture Upload */}
-                        <ProfilePictureUpload
-                            currentImageUrl={profile.avatar}
-                            currentPublicId={profile.avatar_public_id}
-                            userName={profile.name}
-                            onUploadSuccess={handleAvatarUploadSuccess}
-                            onUploadError={handleAvatarUploadError}
-                            disabled={saving}
-                            size="xl"
-                        />
+                        {/* Profile Picture with Camera Icon */}
+                        <div className="relative mx-auto w-fit">
+                            <Avatar className="h-32 w-32 mx-auto">
+                                <AvatarImage src={profile.avatar || "/placeholder.svg"} alt={profile.name} className="object-cover" />
+                                <AvatarFallback className="text-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
+                                    {profile.name.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                            </Avatar>
+
+                            {/* Camera Icon Button */}
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                className="absolute -bottom-2 -right-2 h-10 w-10 rounded-full p-0 bg-white shadow-lg hover:shadow-xl transition-shadow"
+                                onClick={() => setShowUploadModal(true)}
+                                disabled={saving}
+                            >
+                                <Camera className="h-4 w-4" />
+                                <span className="sr-only">Change profile picture</span>
+                            </Button>
+                        </div>
 
                         <CardTitle className="mt-4">{profile.name}</CardTitle>
                         <Badge className={getRoleColor(profile.role)}>{profile.role}</Badge>
@@ -375,7 +392,7 @@ export default function ProfilePage() {
 
                         {userRole === "student" && (
                             <div className="space-y-2">
-                                <Label htmlFor="grade">Grade/Level</Label>
+                                <Label htmlFor="grade">Class</Label>
                                 {editing ? (
                                     <Input
                                         id="grade"
@@ -428,6 +445,17 @@ export default function ProfilePage() {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Profile Picture Upload Modal */}
+            <ProfilePictureUploadModal
+                isOpen={showUploadModal}
+                onClose={() => setShowUploadModal(false)}
+                currentImageUrl={profile.avatar}
+                currentPublicId={profile.avatar_public_id}
+                userName={profile.name}
+                onUploadSuccess={handleAvatarUploadSuccess}
+                onUploadError={handleAvatarUploadError}
+            />
         </div>
     )
 }
