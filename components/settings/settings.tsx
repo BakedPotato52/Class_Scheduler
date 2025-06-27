@@ -105,7 +105,7 @@ export default function SettingsPage() {
 
     const timezones = [
         { value: "America/New_York", label: "Eastern Time (ET)" },
-        { value: "America/Chicago", label: "Central Time (CT)" },
+        { value: "India", label: "Indian Standard Time (IST)" },
         { value: "America/Denver", label: "Mountain Time (MT)" },
         { value: "America/Los_Angeles", label: "Pacific Time (PT)" },
         { value: "Europe/London", label: "Greenwich Mean Time (GMT)" },
@@ -149,7 +149,7 @@ export default function SettingsPage() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 mt-8">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>

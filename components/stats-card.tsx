@@ -17,7 +17,7 @@ const colorClasses = {
 
 export default function StatsCard({ title, value, icon: Icon, color, change }: StatsCardProps) {
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+        <div className="bg-white hover:shadow-lg rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
             <div className="flex items-center justify-between">
                 <div className="min-w-0 flex-1">
                     <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">{title}</p>
