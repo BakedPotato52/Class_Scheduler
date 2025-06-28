@@ -30,7 +30,7 @@ export const AuthContext = createContext<AuthContextType>({
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserData | null>(null)
-  const [avatar, setAvatar] = useState<UserProfile | null>(null)
+  const [avatar, setAvatar] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState<string | undefined>(undefined)
 
@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               email: firebaseUser.email,
               name: userData.name,
               role: userData.role,
-              avatar: avatar?.avatar || "",
+              avatar: avatar || "",
             })
           } else {
             // Handle case where user exists in auth but not in firestore
@@ -71,15 +71,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const profileDoc = await getDoc(doc(db, "profiles", uid))
         if (profileDoc.exists()) {
           const profileData = profileDoc.data() as UserProfile
-          setAvatar(profileData)
+          let avatarUrl = profileData.avatar || ""
+          setAvatar(avatarUrl)
         }
       } catch (error) {
         console.error("Error fetching profile data:", error)
       }
     }
 
-    getProfileData(get(user, "uid", ""))
-  }, [])
+    if (user?.uid) {
+      getProfileData(user.uid)
+    }
+  }, [user])
 
   useEffect(() => {
     if (user) {

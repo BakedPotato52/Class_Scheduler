@@ -3,10 +3,11 @@
 import { useAuth } from "@/hooks/use-auth"
 import { Menu, Bell, Search, GraduationCap } from "lucide-react"
 import Link from "next/link"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 
 export default function MobileHeader() {
     const { user } = useAuth()
-
+    console.log("MobileHeader user:", user)
     return (
         <header className="sticky md:hidden top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
 
@@ -30,8 +31,13 @@ export default function MobileHeader() {
                         <Bell className="w-5 h-5 text-gray-600" />
                         <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
                     </button>
-                    <div className="w-8 h-8 bg-gradient-to-r from-pink-400 to-red-400 rounded-full flex items-center justify-center">
-                        <span className="text-white font-semibold text-sm">{user?.name?.charAt(0).toUpperCase()}</span>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center">
+                        <Avatar className="flex-shrink-0">
+                            <AvatarImage src={user?.avatar} />
+                            <AvatarFallback className="bg-gradient-to-r from-pink-400 to-red-400 text-white">
+                                {user?.name?.charAt(0).toUpperCase() || "U"}
+                            </AvatarFallback>
+                        </Avatar>
                     </div>
                 </div>
             </nav>
