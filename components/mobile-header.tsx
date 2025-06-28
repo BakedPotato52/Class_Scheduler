@@ -1,13 +1,68 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { useAuth } from "@/hooks/use-auth"
-import { Menu, Bell, Search, GraduationCap } from "lucide-react"
+import { Menu, Bell, Search, GraduationCap, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import { UserProfile } from "@/lib/firebase-admin"
+import { profileService } from "@/lib/firebase-admin"
+import { toast } from "sonner"
 
 export default function MobileHeader() {
-    const { user } = useAuth()
-    console.log("MobileHeader user:", user)
+    const { user, userRole } = useAuth()
+    const [profile, setProfile] = useState<UserProfile | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+
+    const loadProfile = async () => {
+        if (!user) return
+
+        setLoading(true)
+        setError(null)
+
+        try {
+            let userProfile = await profileService.getUserProfile(user.uid)
+
+            // Create profile if it doesn't exist
+            if (!userProfile) {
+                const newProfile: UserProfile = {
+                    id: user.uid,
+                    name: user.name || user.email?.split("@")[0] || "User",
+                    email: user.email || "",
+                    role: userRole as "student" | "teacher" | "admin",
+                    joined_at: new Date() as any,
+                }
+
+                await profileService.createUserProfile(newProfile)
+                userProfile = newProfile
+            }
+
+            setProfile(userProfile)
+
+        } catch {
+            setError("Failed to load profile. Please try again.")
+            toast.error(error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="text-center">
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
+                    <p className="text-gray-600">Loading profile...</p>
+                </div>
+            </div>
+        )
+    }
+
+    useEffect(() => {
+        loadProfile()
+    }, [user, userRole])
+
     return (
         <header className="sticky md:hidden top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
 
@@ -33,7 +88,7 @@ export default function MobileHeader() {
                     </button>
                     <div className="w-8 h-8 rounded-full flex items-center justify-center">
                         <Avatar className="flex-shrink-0">
-                            <AvatarImage src={user?.avatar} />
+                            <AvatarImage src={profile?.avatar} />
                             <AvatarFallback className="bg-gradient-to-r from-pink-400 to-red-400 text-white">
                                 {user?.name?.charAt(0).toUpperCase() || "U"}
                             </AvatarFallback>

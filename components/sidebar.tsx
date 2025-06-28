@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import { getFilteredMenuItems, type UserRole } from "@/lib/menu-items"
-import { type LucideIcon, MoreHorizontal, LogOut, GraduationCap } from "lucide-react"
+import { type LucideIcon, MoreHorizontal, LogOut, GraduationCap, Loader2 } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { signOut } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 import { toast } from "sonner"
+import { profileService, UserProfile } from "@/lib/firebase-admin"
 
 export default function Sidebar() {
     const [open, setOpen] = useState(false)
@@ -19,6 +20,58 @@ export default function Sidebar() {
     const pathname = usePathname()
     const router = useRouter()
     const { user, userRole } = useAuth()
+
+    const [profile, setProfile] = useState<UserProfile | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+
+    const loadProfile = async () => {
+        if (!user) return
+
+        setLoading(true)
+        setError(null)
+
+        try {
+            let userProfile = await profileService.getUserProfile(user.uid)
+
+            // Create profile if it doesn't exist
+            if (!userProfile) {
+                const newProfile: UserProfile = {
+                    id: user.uid,
+                    name: user.name || user.email?.split("@")[0] || "User",
+                    email: user.email || "",
+                    role: userRole as "student" | "teacher" | "admin",
+                    joined_at: new Date() as any,
+                }
+
+                await profileService.createUserProfile(newProfile)
+                userProfile = newProfile
+            }
+
+            setProfile(userProfile)
+
+        } catch {
+            setError("Failed to load profile. Please try again.")
+            toast.error(error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="text-center">
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
+                    <p className="text-gray-600">Loading ...</p>
+                </div>
+            </div>
+        )
+    }
+
+    useEffect(() => {
+        loadProfile()
+    }, [user, userRole])
 
     useEffect(() => {
         setIsMobileMenuOpen(false)
@@ -143,7 +196,7 @@ export default function Sidebar() {
                     <div className="mt-auto p-6 border-t">
                         <div className="flex items-center gap-3 mb-4">
                             <Avatar className="h-10 w-10 flex-shrink-0">
-                                <AvatarImage src={user.avatar} />
+                                <AvatarImage src={profile?.avatar} />
                                 <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
                                     {user.name?.charAt(0).toUpperCase() || "U"}
                                 </AvatarFallback>
