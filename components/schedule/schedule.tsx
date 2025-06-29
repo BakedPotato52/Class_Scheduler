@@ -199,7 +199,7 @@ export default function SchedulePage() {
     }
 
     return (
-        <div className="space-y-6 mt-8">
+        <div className="space-y-6 mt-8 mb-20">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>

@@ -1,14 +1,31 @@
 "use client"
 
 import { useAuth } from "@/hooks/use-auth"
-import { Menu, Bell, Search, GraduationCap, Loader2 } from "lucide-react"
+import { Menu, Bell, Search, GraduationCap, Loader2, LogOut } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import { Button } from "./ui/button"
+import { signOut } from "firebase/auth"
+import { auth } from "@/lib/firebase"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
+import { ThemeToggle } from "./theme-toggle"
 
 
 export default function MobileHeader() {
     const { user } = useAuth()
+    const router = useRouter()
 
+    const handleLogout = async () => {
+        try {
+            await signOut(auth)
+            toast.success("Logged out successfully")
+            router.push("/")
+        } catch (error) {
+            console.error("Logout error", error)
+        }
+    }
 
     return (
         <header className="sticky md:hidden top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -33,14 +50,28 @@ export default function MobileHeader() {
                         <Bell className="w-5 h-5 text-gray-600" />
                         <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
                     </button>
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center">
-                        <Avatar className="flex-shrink-0">
-                            <AvatarImage src={''} />
-                            <AvatarFallback className="bg-gradient-to-r from-pink-400 to-red-400 text-white">
-                                {user?.name?.charAt(0).toUpperCase() || "U"}
-                            </AvatarFallback>
-                        </Avatar>
-                    </div>
+
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button className="w-8 h-8 rounded-full flex items-center justify-center">
+                                <Avatar className="flex-shrink-0">
+                                    <AvatarImage src={user?.avatar || '/'} />
+                                    <AvatarFallback className="bg-gradient-to-r from-pink-400 to-red-400 text-white">
+                                        {user?.name?.charAt(0).toUpperCase() || "U"}
+                                    </AvatarFallback>
+                                </Avatar>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                                <ThemeToggle />
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleLogout}>
+                                <LogOut className="w-4 h-4 mr-2" />
+                                Sign Out
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </nav>
         </header>
