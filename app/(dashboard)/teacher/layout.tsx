@@ -47,7 +47,7 @@ export default function DashboardLayout({
             <main className="w-full max-sm:w-full bg-background overflow-scroll-y flex flex-col">
                 {/* Mobile Header */}
                 <MobileHeader />
-                <div className="max-w-7xl mx-auto">{children}</div>
+                <div className="max-w-7xl mx-auto dark:text-white">{children}</div>
             </main>
         </div>
     )

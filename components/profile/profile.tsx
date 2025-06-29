@@ -265,7 +265,7 @@ export default function ProfilePage() {
                             <Button
                                 size="sm"
                                 variant="outline"
-                                className="absolute -bottom-2 -right-2 h-10 w-10 rounded-full p-0 bg-white shadow-lg hover:shadow-xl transition-shadow"
+                                className="absolute -bottom-2 -right-2 h-10 w-10 rounded-full p-0   shadow-lg hover:shadow-xl transition-shadow"
                                 onClick={() => setShowUploadModal(true)}
                                 disabled={saving}
                             >

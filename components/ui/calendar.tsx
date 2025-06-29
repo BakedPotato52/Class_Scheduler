@@ -92,7 +92,7 @@ export function Calendar({ events = [], onEventClick, onDateClick, className }: 
         <div
           key={day}
           className={cn(
-            "h-24 sm:h-32 border border-gray-200 bg-white p-1 sm:p-2 cursor-pointer hover:bg-gray-50 transition-colors",
+            "h-24 sm:h-32 border border-gray-200   p-1 sm:p-2 cursor-pointer hover:bg-gray-50 transition-colors",
             isToday && "bg-blue-50 border-blue-300",
           )}
           onClick={() => onDateClick?.(date)}
@@ -127,7 +127,7 @@ export function Calendar({ events = [], onEventClick, onDateClick, className }: 
   }
 
   return (
-    <div className={cn("bg-white rounded-lg shadow-sm border", className)}>
+    <div className={cn("  rounded-lg shadow-sm border", className)}>
       {/* Calendar Header */}
       <div className="flex items-center justify-between p-4 border-b">
         <h2 className="text-lg font-semibold text-gray-900">

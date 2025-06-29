@@ -190,7 +190,7 @@ export default function ClassesPage() {
             {error && <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">{error}</div>}
 
             {/* Filters */}
-            <div className="bg-white rounded-lg shadow-sm border p-4">
+            <div className="  rounded-lg shadow-sm border p-4">
                 <div className="flex flex-col sm:flex-row gap-4">
                     {/* Search */}
                     <div className="flex-1">

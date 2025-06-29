@@ -43,7 +43,7 @@ export default function ChartCard({ title, subtitle, data, type, color }: ChartC
                 <div className="flex items-center justify-center h-32 mt-4">
                     <div className="relative w-24 h-24">
                         <div className="w-24 h-24 rounded-full bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500"></div>
-                        <div className="absolute inset-3 bg-white rounded-full flex items-center justify-center">
+                        <div className="absolute inset-3   rounded-full flex items-center justify-center">
                             <span className="text-lg font-bold text-gray-900">100%</span>
                         </div>
                     </div>
