@@ -214,8 +214,8 @@ export default function ProfilePage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Profile</h1>
-                    <p className="text-gray-600 mt-1">Manage your personal information and preferences</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Profile</h1>
+                    <p className="text-gray-600 dark:text-white mt-1">Manage your personal information and preferences</p>
                 </div>
 
                 {!editing ? (
@@ -275,7 +275,7 @@ export default function ProfilePage() {
                         </div>
 
                         <CardTitle className="mt-4">{profile.name}</CardTitle>
-                        <Badge className={getRoleColor(profile.role)}>{profile.role}</Badge>
+                        <Badge className={`flex justify-center align-center text-md ${getRoleColor(profile.role)}`}>{profile.role}</Badge>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -329,13 +329,13 @@ export default function ProfilePage() {
                                         disabled={saving}
                                     />
                                 ) : (
-                                    <div className="p-2 bg-gray-50 rounded-md text-sm">{profile.name}</div>
+                                    <div className="p-2  rounded-md text-sm">{profile.name}</div>
                                 )}
                             </div>
 
                             <div className="space-y-2">
                                 <Label htmlFor="email">Email Address</Label>
-                                <div className="p-2 bg-gray-50 rounded-md text-sm text-gray-600">{profile.email}</div>
+                                <div className="p-2  rounded-md text-sm text-gray-600">{profile.email}</div>
                                 <p className="text-xs text-gray-500">Email cannot be changed</p>
                             </div>
                         </div>
@@ -352,7 +352,7 @@ export default function ProfilePage() {
                                         disabled={saving}
                                     />
                                 ) : (
-                                    <div className="p-2 bg-gray-50 rounded-md text-sm">{profile.phone || "Not provided"}</div>
+                                    <div className="p-2  rounded-md text-sm">{profile.phone || "Not provided"}</div>
                                 )}
                             </div>
 
@@ -367,7 +367,7 @@ export default function ProfilePage() {
                                         disabled={saving}
                                     />
                                 ) : (
-                                    <div className="p-2 bg-gray-50 rounded-md text-sm">{profile.location || "Not provided"}</div>
+                                    <div className="p-2  rounded-md text-sm">{profile.location || "Not provided"}</div>
                                 )}
                             </div>
                         </div>
@@ -385,7 +385,7 @@ export default function ProfilePage() {
                                         disabled={saving}
                                     />
                                 ) : (
-                                    <div className="p-2 bg-gray-50 rounded-md text-sm">{profile.subject || "Not provided"}</div>
+                                    <div className="p-2  rounded-md text-sm">{profile.subject || "Not provided"}</div>
                                 )}
                             </div>
                         )}
@@ -402,7 +402,7 @@ export default function ProfilePage() {
                                         disabled={saving}
                                     />
                                 ) : (
-                                    <div className="p-2 bg-gray-50 rounded-md text-sm">{profile.grade || "Not provided"}</div>
+                                    <div className="p-2  rounded-md text-sm">{profile.grade || "Not provided"}</div>
                                 )}
                             </div>
                         )}
@@ -419,7 +419,7 @@ export default function ProfilePage() {
                                         disabled={saving}
                                     />
                                 ) : (
-                                    <div className="p-2 bg-gray-50 rounded-md text-sm">{profile.department || "Not provided"}</div>
+                                    <div className="p-2  rounded-md text-sm">{profile.department || "Not provided"}</div>
                                 )}
                             </div>
                         )}
@@ -437,7 +437,7 @@ export default function ProfilePage() {
                                     disabled={saving}
                                 />
                             ) : (
-                                <div className="p-2 bg-gray-50 rounded-md text-sm min-h-[100px]">
+                                <div className="p-2  rounded-md text-sm min-h-[100px]">
                                     {profile.bio || "No bio provided"}
                                 </div>
                             )}

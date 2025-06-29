@@ -92,12 +92,12 @@ export default function CreateClassModal({ isOpen, onClose, onSuccess }: CreateC
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="relative   rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+                        className="relative bg-background rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
                     >
                         {/* Header */}
                         <div className="flex items-center justify-between p-6 border-b border-gray-200">
                             <div>
-                                <h2 className="text-2xl font-bold text-gray-900">Create New Class</h2>
+                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Create New Class</h2>
                                 <p className="text-sm text-gray-600 mt-1">Set up your class details and schedule</p>
                             </div>
                             <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">

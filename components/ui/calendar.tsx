@@ -130,7 +130,7 @@ export function Calendar({ events = [], onEventClick, onDateClick, className }: 
     <div className={cn("  rounded-lg shadow-sm border", className)}>
       {/* Calendar Header */}
       <div className="flex items-center justify-between p-4 border-b">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold dark:text-white text-gray-900">
           {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
         </h2>
         <div className="flex items-center space-x-2">
@@ -149,7 +149,7 @@ export function Calendar({ events = [], onEventClick, onDateClick, className }: 
       {/* Day Names Header */}
       <div className="grid grid-cols-7 border-b">
         {dayNames.map((day) => (
-          <div key={day} className="p-2 sm:p-3 text-center text-sm font-medium text-gray-700 bg-gray-50">
+          <div key={day} className="p-2 sm:p-3 text-center text-sm font-medium text-gray-700 dark:text-white ">
             {day}
           </div>
         ))}
