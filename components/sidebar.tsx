@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import { getFilteredMenuItems, type UserRole } from "@/lib/menu-items"
-import { type LucideIcon, MoreHorizontal, LogOut, GraduationCap } from "lucide-react"
+import { type LucideIcon, MoreHorizontal, LogOut, GraduationCap, Loader2 } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -19,6 +19,8 @@ export default function Sidebar() {
     const pathname = usePathname()
     const router = useRouter()
     const { user, userRole } = useAuth()
+
+
 
     useEffect(() => {
         setIsMobileMenuOpen(false)
@@ -64,30 +66,7 @@ export default function Sidebar() {
 
     return (
         <>
-            {/* Mobile Header */}
-            {/* <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b z-30 shadow-sm">
-                <div className="flex items-center justify-between h-full px-4">
-                    <Link href="/" className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white">
-                            <GraduationCap className="w-5 h-5" />
-                        </div>
-                        <span className="bg-gradient-to-r from-blue-600 to-indigo-600 font-bold text-xl bg-clip-text text-transparent">
-                            ClassEs
-                        </span>
-                    </Link>
-                    <div className="flex items-center gap-3">
-                        <Button variant="ghost" size="sm" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-                            <GraduationCap className="h-5 w-5" />
-                        </Button>
-                        <Avatar className="h-8 w-8">
-                            <AvatarImage src="/placeholder.svg" alt={user.name || ""} />
-                            <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm">
-                                {user.name?.charAt(0).toUpperCase() || "U"}
-                            </AvatarFallback>
-                        </Avatar>
-                    </div>
-                </div>
-            </header> */}
+
 
             {/* Overlay */}
             <div
@@ -98,7 +77,7 @@ export default function Sidebar() {
 
             {/* Mobile Sidebar */}
             <aside
-                className={`fixed top-16 left-0 bottom-0 w-64 bg-white border-r z-20 transform transition-transform duration-200 md:hidden ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+                className={`fixed top-16 left-0 bottom-0 w-64   border-r z-20 transform transition-transform duration-200 md:hidden ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
                     }`}
             >
                 <div className="p-4 overflow-y-auto h-full">
@@ -143,7 +122,7 @@ export default function Sidebar() {
                     <div className="mt-auto p-6 border-t">
                         <div className="flex items-center gap-3 mb-4">
                             <Avatar className="h-10 w-10 flex-shrink-0">
-                                <AvatarImage src="/placeholder.svg" />
+                                <AvatarImage src={user?.avatar || '/'} />
                                 <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
                                     {user.name?.charAt(0).toUpperCase() || "U"}
                                 </AvatarFallback>
@@ -167,11 +146,11 @@ export default function Sidebar() {
                 aria-label="Mobile Bottom Navigation"
             >
                 <ul className="flex justify-around items-center h-16">
-                    {visibleItems.slice(0, 3).map((item, index) => {
+                    {visibleItems.slice(0, 3).map((item, index: any) => {
                         const IconComponent = item.icon as LucideIcon
                         const isActive = pathname === item.href
                         return (
-                            <li key={item.label} className="flex-1">
+                            <li key={index} className="flex-1">
                                 <Link
                                     href={item.href}
                                     className={`flex flex-col items-center justify-center h-full ${isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"

@@ -62,12 +62,12 @@ export default function TeacherDashboard() {
     }
 
     return (
-        <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-4 sm:space-y-6 mt-8 mb-20">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Teacher Dashboard</h1>
-                    <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage your classes and track student progress</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Teacher Dashboard</h1>
+                    <p className="text-gray-600 dark:text-white mt-1 text-sm sm:text-base">Manage your classes and track student progress</p>
                 </div>
                 <Button
                     onClick={() => setShowCreateModal(true)}
@@ -115,8 +115,8 @@ export default function TeacherDashboard() {
                 {classes.length === 0 ? (
                     <div className="text-center py-12">
                         <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">No classes yet</h3>
-                        <p className="text-gray-600 mb-4">Create your first class to get started</p>
+                        <h3 className="text-lg font-medium dark:text-white text-gray-900 mb-2">No classes yet</h3>
+                        <p className="text-gray-600 mb-4 dark:text-white">Create your first class to get started</p>
                         <Button
                             onClick={() => setShowCreateModal(true)}
                             className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"

@@ -5,12 +5,14 @@ import { createContext, useEffect, useState } from "react"
 import { onAuthStateChanged } from "firebase/auth"
 import { doc, getDoc } from "firebase/firestore"
 import { auth, db } from "@/lib/firebase"
+import { profileService } from "@/lib/firebase-admin"
 
 interface UserData {
   uid: string
   email: string | null
   name: string
   role: string
+  avatar?: string // Optional avatar field
 }
 
 interface AuthContextType {
@@ -29,18 +31,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState<string | undefined>(undefined)
 
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
           const userDoc = await getDoc(doc(db, "users", firebaseUser.uid))
-          if (userDoc.exists()) {
+          let profile = await profileService.getUserProfile(firebaseUser.uid)
+          if (userDoc.exists() && profile) {
             const userData = userDoc.data()
+
+            console.log("Profile data:", profile?.avatar)
             setUser({
               uid: firebaseUser.uid,
               email: firebaseUser.email,
               name: userData.name,
               role: userData.role,
+              avatar: profile?.avatar,
             })
           } else {
             // Handle case where user exists in auth but not in firestore

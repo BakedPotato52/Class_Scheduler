@@ -168,12 +168,12 @@ export default function ClassesPage() {
     }
 
     return (
-        <div className="space-y-6 mt-8">
+        <div className="space-y-6 mt-8 mb-20">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{getPageTitle()}</h1>
-                    <p className="text-gray-600 mt-1">{getPageSubtitle()}</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold dark:text-white text-gray-900">{getPageTitle()}</h1>
+                    <p className="text-gray-600 dark:text-white mt-1">{getPageSubtitle()}</p>
                 </div>
                 {userRole === "teacher" && (
                     <Button
@@ -190,7 +190,7 @@ export default function ClassesPage() {
             {error && <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">{error}</div>}
 
             {/* Filters */}
-            <div className="bg-white rounded-lg shadow-sm border p-4">
+            <div className="  rounded-lg shadow-sm border p-4">
                 <div className="flex flex-col sm:flex-row gap-4">
                     {/* Search */}
                     <div className="flex-1">
@@ -238,13 +238,13 @@ export default function ClassesPage() {
             {/* Classes Grid */}
             {filteredClasses.length === 0 ? (
                 <div className="text-center py-12">
-                    <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    <BookOpen className="w-12 h-12 text-gray-400 dark:text-white mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                         {searchTerm || statusFilter !== "all" || enrollmentFilter !== "all"
                             ? "No classes found"
                             : "No classes available"}
                     </h3>
-                    <p className="text-gray-600 mb-4">
+                    <p className="text-gray-600 dark:text-white mb-4">
                         {searchTerm || statusFilter !== "all" || enrollmentFilter !== "all"
                             ? "Try adjusting your search or filters"
                             : userRole === "teacher"
@@ -254,9 +254,9 @@ export default function ClassesPage() {
                     {userRole === "teacher" && !searchTerm && statusFilter === "all" && (
                         <Button
                             onClick={() => setShowCreateModal(true)}
-                            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                            className=" dark:text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
                         >
-                            <Plus className="w-4 h-4 mr-2" />
+                            <Plus className="w-4 h-4 mr-2 " />
                             Create Class
                         </Button>
                     )}

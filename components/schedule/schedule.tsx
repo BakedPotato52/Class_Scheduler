@@ -199,14 +199,14 @@ export default function SchedulePage() {
     }
 
     return (
-        <div className="space-y-6 mt-8">
+        <div className="space-y-6 mt-8 mb-20">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{getPageTitle()}</h1>
-                    <p className="text-gray-600 mt-1">{getPageSubtitle()}</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold dark:text-white text-gray-900">{getPageTitle()}</h1>
+                    <p className="text-gray-600 dark:text-white mt-1">{getPageSubtitle()}</p>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className="flex items-center gap-2 text-sm dark:text-white text-gray-600">
                     <CalendarIcon className="h-4 w-4" />
                     <span>{events.length} classes this month</span>
                 </div>
@@ -245,28 +245,28 @@ export default function SchedulePage() {
 
                                 <div className="space-y-3">
                                     <div className="flex items-start gap-2">
-                                        <User className="h-4 w-4 mt-0.5 text-gray-500" />
+                                        <User className="h-4 w-4 mt-0.5 text-gray-500 dark:text-white" />
                                         <div>
-                                            <p className="text-sm font-medium">Teacher</p>
-                                            <p className="text-sm text-gray-600">{selectedEvent.data.teacher_info.name}</p>
+                                            <p className="text-sm font-medium dark:text-white">Teacher</p>
+                                            <p className="text-sm text-gray-600 dark:text-white">{selectedEvent.data.teacher_info.name}</p>
                                         </div>
                                     </div>
 
                                     <div className="flex items-start gap-2">
-                                        <Clock className="h-4 w-4 mt-0.5 text-gray-500" />
+                                        <Clock className="h-4 w-4 mt-0.5 text-gray-500 dark:text-white" />
                                         <div>
                                             <p className="text-sm font-medium">Schedule</p>
-                                            <p className="text-sm text-gray-600">{formatDateTime(selectedEvent.start)}</p>
-                                            <p className="text-sm text-gray-600">Duration: {selectedEvent.data.duration}</p>
+                                            <p className="text-sm text-gray-600 dark:text-white">{formatDateTime(selectedEvent.start)}</p>
+                                            <p className="text-sm text-gray-600 dark:text-white">Duration: {selectedEvent.data.duration}</p>
                                         </div>
                                     </div>
 
                                     {selectedEvent.data.subject && (
                                         <div className="flex items-start gap-2">
-                                            <MapPin className="h-4 w-4 mt-0.5 text-gray-500" />
+                                            <MapPin className="h-4 w-4 mt-0.5 text-gray-500 dark:text-white" />
                                             <div>
                                                 <p className="text-sm font-medium">Subject</p>
-                                                <p className="text-sm text-gray-600">{selectedEvent.data.subject}</p>
+                                                <p className="text-sm text-gray-600 dark:text-white">{selectedEvent.data.subject}</p>
                                             </div>
                                         </div>
                                     )}
@@ -274,7 +274,7 @@ export default function SchedulePage() {
                                     {selectedEvent.data.description && (
                                         <div>
                                             <p className="text-sm font-medium mb-1">Description</p>
-                                            <p className="text-sm text-gray-600">{selectedEvent.data.description}</p>
+                                            <p className="text-sm text-gray-600 dark:text-white">{selectedEvent.data.description}</p>
                                         </div>
                                     )}
 
@@ -282,7 +282,7 @@ export default function SchedulePage() {
                                         <User className="h-4 w-4 mt-0.5 text-gray-500" />
                                         <div>
                                             <p className="text-sm font-medium">Enrollment</p>
-                                            <p className="text-sm text-gray-600">
+                                            <p className="text-sm text-gray-600 dark:text-white">
                                                 {selectedEvent.data.enrolled_students?.length || 0} / {selectedEvent.data.max_students} students
                                             </p>
                                         </div>
@@ -303,8 +303,8 @@ export default function SchedulePage() {
                         <Card>
                             <CardContent className="flex items-center justify-center py-12">
                                 <div className="text-center">
-                                    <CalendarIcon className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                                    <p className="text-gray-600">Click on a class to view details</p>
+                                    <CalendarIcon className="h-8 w-8 text-gray-400 dark:text-white mx-auto mb-2" />
+                                    <p className="text-gray-600 dark:text-white">Click on a class to view details</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -328,7 +328,7 @@ export default function SchedulePage() {
                                 })
 
                                 if (todayClasses.length === 0) {
-                                    return <p className="text-gray-600 text-sm text-center py-4">No classes scheduled for today</p>
+                                    return <p className="text-gray-600 dark:text-white text-sm text-center py-4">No classes scheduled for today</p>
                                 }
 
                                 return (
@@ -341,7 +341,7 @@ export default function SchedulePage() {
                                             >
                                                 <div className="min-w-0 flex-1">
                                                     <p className="font-medium text-sm truncate">{event.title}</p>
-                                                    <p className="text-xs text-gray-600">
+                                                    <p className="text-xs text-gray-600 dark:text-white">
                                                         {formatTime(event.start)} - {formatTime(event.end)}
                                                     </p>
                                                 </div>

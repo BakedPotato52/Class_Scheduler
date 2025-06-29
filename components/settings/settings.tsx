@@ -149,15 +149,15 @@ export default function SettingsPage() {
     }
 
     return (
-        <div className="space-y-6 mt-8">
+        <div className="space-y-6 mt-8 mb-20">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                         <Settings className="h-8 w-8" />
                         Settings
                     </h1>
-                    <p className="text-gray-600 mt-1">Customize your experience and preferences</p>
+                    <p className="text-gray-600 dark:text-white mt-1">Customize your experience and preferences</p>
                 </div>
 
                 <Button onClick={handleSave} disabled={saving} className="flex items-center gap-2">

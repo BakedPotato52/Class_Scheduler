@@ -27,6 +27,7 @@ const RegisterPage: React.FC = React.memo(() => {
     email: "",
     password: "",
     role: "student",
+    avatar: "",
   })
   const [isLoading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -61,6 +62,7 @@ const RegisterPage: React.FC = React.memo(() => {
           name: formData.name.trim(),
           email: formData.email.toLowerCase().trim(),
           role: formData.role,
+          avatar: formData.avatar || "", // Optional avatar field
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         })

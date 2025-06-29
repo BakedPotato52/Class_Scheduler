@@ -133,7 +133,7 @@ export default function NotificationsPage() {
     }
 
     return (
-        <div className="space-y-6 mt-8">
+        <div className="space-y-6 mt-8 mb-20">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
@@ -162,7 +162,7 @@ export default function NotificationsPage() {
             {error && <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">{error}</div>}
 
             {/* Filters */}
-            <div className="bg-white rounded-lg shadow-sm border p-4">
+            <div className="  rounded-lg shadow-sm border p-4">
                 <div className="flex flex-col sm:flex-row gap-4">
                     <div className="flex items-center gap-2">
                         <Filter className="h-4 w-4 text-gray-500" />
