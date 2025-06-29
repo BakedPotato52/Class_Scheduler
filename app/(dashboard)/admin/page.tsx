@@ -73,7 +73,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6 mb-16">
+    <div className="space-y-4 sm:space-y-6 mb-20 mt-8">
       {/* Header */}
       <div className="flex flex-col sm:mt-4 sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
