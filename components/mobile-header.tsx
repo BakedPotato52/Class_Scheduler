@@ -1,6 +1,6 @@
 "use client"
 
-import { useAuth, useProfile } from "@/hooks/use-auth"
+import { useAuth } from "@/hooks/use-auth"
 import { Menu, Bell, Search, GraduationCap, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
@@ -8,7 +8,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 
 export default function MobileHeader() {
     const { user } = useAuth()
-    const { profile } = useProfile()
 
 
     return (
@@ -36,7 +35,7 @@ export default function MobileHeader() {
                     </button>
                     <div className="w-8 h-8 rounded-full flex items-center justify-center">
                         <Avatar className="flex-shrink-0">
-                            <AvatarImage src={profile?.avatar} />
+                            <AvatarImage src={''} />
                             <AvatarFallback className="bg-gradient-to-r from-pink-400 to-red-400 text-white">
                                 {user?.name?.charAt(0).toUpperCase() || "U"}
                             </AvatarFallback>

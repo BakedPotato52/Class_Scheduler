@@ -110,7 +110,7 @@ export interface UserSettings {
     updated_at: Timestamp
 }
 
-// Enhanced Class CRUD Operations
+// Class CRUD Operations
 export const classService = {
     // Create a new class
     async createClass(classData: Omit<ClassData, "id" | "created_at">): Promise<string> {

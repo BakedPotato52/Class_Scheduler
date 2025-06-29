@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, use } from "react"
+import { useState, useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import { getFilteredMenuItems, type UserRole } from "@/lib/menu-items"
@@ -8,7 +8,7 @@ import { type LucideIcon, MoreHorizontal, LogOut, GraduationCap, Loader2 } from 
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useAuth, useProfile } from "@/hooks/use-auth"
+import { useAuth } from "@/hooks/use-auth"
 import { signOut } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 import { toast } from "sonner"
@@ -19,7 +19,6 @@ export default function Sidebar() {
     const pathname = usePathname()
     const router = useRouter()
     const { user, userRole } = useAuth()
-    const { profile } = useProfile()
 
 
 
@@ -146,7 +145,7 @@ export default function Sidebar() {
                     <div className="mt-auto p-6 border-t">
                         <div className="flex items-center gap-3 mb-4">
                             <Avatar className="h-10 w-10 flex-shrink-0">
-                                <AvatarImage src={profile?.avatar} />
+                                <AvatarImage src={''} />
                                 <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
                                     {user.name?.charAt(0).toUpperCase() || "U"}
                                 </AvatarFallback>
