@@ -217,11 +217,11 @@ export default function AnalyticsPage() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 mb-16">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-8 max-sm:px-6">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                         <Activity className="h-8 w-8" />
                         Analytics
                     </h1>
@@ -255,8 +255,8 @@ export default function AnalyticsPage() {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600">Total Users</p>
-                                <p className="text-2xl font-bold text-gray-900">{analytics.totalUsers}</p>
+                                <p className="text-sm font-medium text-gray-600 dark:text-white">Total Users</p>
+                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{analytics.totalUsers}</p>
                                 <p className="text-xs text-green-600 flex items-center mt-1">
                                     <TrendingUp className="w-3 h-3 mr-1" />
                                     +12% from last month
@@ -271,8 +271,8 @@ export default function AnalyticsPage() {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600">Total Classes</p>
-                                <p className="text-2xl font-bold text-gray-900">{analytics.totalClasses}</p>
+                                <p className="text-sm font-medium text-gray-600 dark:text-white">Total Classes</p>
+                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{analytics.totalClasses}</p>
                                 <p className="text-xs text-green-600 flex items-center mt-1">
                                     <TrendingUp className="w-3 h-3 mr-1" />
                                     +8% from last month
@@ -287,8 +287,8 @@ export default function AnalyticsPage() {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600">Total Enrollments</p>
-                                <p className="text-2xl font-bold text-gray-900">{analytics.totalEnrollments}</p>
+                                <p className="text-sm font-medium text-gray-600 dark:text-white">Total Enrollments</p>
+                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{analytics.totalEnrollments}</p>
                                 <p className="text-xs text-green-600 flex items-center mt-1">
                                     <TrendingUp className="w-3 h-3 mr-1" />
                                     +15% from last month
@@ -303,8 +303,8 @@ export default function AnalyticsPage() {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600">Active Classes</p>
-                                <p className="text-2xl font-bold text-gray-900">{analytics.activeClasses}</p>
+                                <p className="text-sm font-medium text-gray-600 dark:text-white">Active Classes</p>
+                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{analytics.activeClasses}</p>
                                 <p className="text-xs text-blue-600 flex items-center mt-1">
                                     <Activity className="w-3 h-3 mr-1" />
                                     Currently running
@@ -319,8 +319,8 @@ export default function AnalyticsPage() {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600">Completion Rate</p>
-                                <p className="text-2xl font-bold text-gray-900">
+                                <p className="text-sm font-medium text-gray-600dark:text-white">Completion Rate</p>
+                                <p className="text-2xl font-bold text-gray-900 dark:text-white">
                                     {analytics.totalClasses > 0
                                         ? Math.round((analytics.completedClasses / analytics.totalClasses) * 100)
                                         : 0}
