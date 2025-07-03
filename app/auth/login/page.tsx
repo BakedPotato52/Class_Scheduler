@@ -42,7 +42,7 @@ const LoginPage: React.FC = React.memo(() => {
   const [error, setError] = useState("")
   const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError("")
@@ -53,7 +53,7 @@ const LoginPage: React.FC = React.memo(() => {
         "Welcome back!", {
         description: "Successfully signed in to your account.",
       })
-      router.push("/")
+      router.push("/role-redirect")
     } catch (error: any) {
       setError(error.message)
     } finally {
@@ -110,7 +110,7 @@ const LoginPage: React.FC = React.memo(() => {
           </CardHeader>
           <CardContent>
             <MotionForm
-              onSubmit={handleSubmit}
+              onSubmit={handleLogin}
               className="space-y-4"
               initial={formAnimation.initial}
               animate={formAnimation.animate}
