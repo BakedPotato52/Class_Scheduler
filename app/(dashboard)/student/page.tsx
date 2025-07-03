@@ -65,10 +65,10 @@ export default function StudentDashboard() {
   return (
     <div className="space-y-4 sm:space-y-6 mt-8 mb-20">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between max-sm:ml-4 gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Student Dashboard</h1>
-          <p className="text-gray-600 mt-1 text-sm sm:text-base">Discover and join classes</p>
+          <h1 className="text-2xl sm:text-3xl font-bold dark:text-white text-gray-900">Student Dashboard</h1>
+          <p className="text-gray-600 dark:text-white mt-1 text-sm sm:text-base">Discover and join classes</p>
         </div>
       </div>
 
@@ -177,7 +177,7 @@ function ClassCard({ classItem, isEnrolled, onEnroll, enrolling, formatDateTime 
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2">
-            <h3 className="text-lg font-semibold text-gray-900 truncate">{classItem.class_title}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">{classItem.class_title}</h3>
             {isClassActive() && (
               <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Live Now</span>
             )}

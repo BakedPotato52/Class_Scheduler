@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator"
 import { settingsService, type UserSettings } from "@/lib/firebase-admin"
 import { useAuth } from "@/hooks/use-auth"
+import { ThemeToggle } from "../theme-toggle"
 
 export default function SettingsPage() {
     const { user } = useAuth()
@@ -266,19 +267,7 @@ export default function SettingsPage() {
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <Label>Theme</Label>
-                                <Select
-                                    value={settings.preferences.theme}
-                                    onValueChange={(value) => handlePreferenceChange("theme", value)}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="light">Light</SelectItem>
-                                        <SelectItem value="dark">Dark</SelectItem>
-                                        <SelectItem value="system">System</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <ThemeToggle />
                             </div>
 
                             <div className="space-y-2">

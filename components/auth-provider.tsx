@@ -7,7 +7,7 @@ import { doc, getDoc } from "firebase/firestore"
 import { auth, db } from "@/lib/firebase"
 import { profileService } from "@/lib/firebase-admin"
 
-interface UserData {
+export interface UserData {
   uid: string
   email: string | null
   name: string
@@ -38,7 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           const userDoc = await getDoc(doc(db, "users", firebaseUser.uid))
           let profile = await profileService.getUserProfile(firebaseUser.uid)
-          if (userDoc.exists() && profile) {
+          if (userDoc.exists()) {
             const userData = userDoc.data()
 
             console.log("Profile data:", profile?.avatar)

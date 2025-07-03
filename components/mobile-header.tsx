@@ -62,7 +62,7 @@ export default function MobileHeader() {
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="gap-4">
                             <DropdownMenuItem>
                                 <ThemeToggle />
                             </DropdownMenuItem>
