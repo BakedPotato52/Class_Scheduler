@@ -80,7 +80,7 @@ const RegisterPage: React.FC = React.memo(() => {
       toast.success("Success", {
         description: "Account created successfully! Some features may be limited until setup is complete",
       })
-      router.push("/role-redirect")
+      router.push(`/${formData.role}`)
     } catch (error: any) {
       console.error("Registration error:", error)
 

@@ -16,6 +16,7 @@ import { toast } from "sonner"
 import { useEffect, useCallback, useMemo } from "react"
 import dynamic from "next/dynamic"
 import { Loader2 } from "lucide-react"
+import { useAuth } from "@/hooks/use-auth"
 const MotionDiv = dynamic(() => import("framer-motion").then((mod) => mod.motion.div), { ssr: false })
 const MotionForm = dynamic(() => import("framer-motion").then((mod) => mod.motion.form), { ssr: false })
 
@@ -41,6 +42,7 @@ const LoginPage: React.FC = React.memo(() => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
+  const { user } = useAuth()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,7 +55,7 @@ const LoginPage: React.FC = React.memo(() => {
         "Welcome back!", {
         description: "Successfully signed in to your account.",
       })
-      router.push("/role-redirect")
+      router.push(`/${user?.role || "student"}`) // Redirect based on user role
     } catch (error: any) {
       setError(error.message)
     } finally {
