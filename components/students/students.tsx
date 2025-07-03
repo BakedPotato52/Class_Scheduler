@@ -8,104 +8,122 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Search, Filter, Mail, Phone, BookOpen, Users, MoreVertical, UserCheck, GraduationCap } from "lucide-react"
+import {
+    Search,
+    Filter,
+    Mail,
+    Phone,
+    BookOpen,
+    Users,
+    MoreVertical,
+    GraduationCap,
+    UserPlus,
+    TrendingUp,
+} from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { userDataService, classService, type UserData, type ClassData } from "@/lib/firebase-admin"
 
-interface TeacherWithStats extends UserData {
-    totalClasses: number
-    activeClasses: number
-    totalStudents: number
+interface StudentWithStats extends UserData {
+    enrolledClasses: ClassData[]
+    activeEnrollments: number
+    completedClasses: number
     recentClasses: ClassData[]
 }
 
-export default function TeachersPage() {
+export default function StudentsPage() {
     const { user } = useAuth()
-    const [teachers, setTeachers] = useState<TeacherWithStats[]>([])
-    const [filteredTeachers, setFilteredTeachers] = useState<TeacherWithStats[]>([])
+    const [students, setStudents] = useState<StudentWithStats[]>([])
+    const [filteredStudents, setFilteredStudents] = useState<StudentWithStats[]>([])
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState("")
-    const [departmentFilter, setDepartmentFilter] = useState("all")
+    const [gradeFilter, setGradeFilter] = useState("all")
     const [statusFilter, setStatusFilter] = useState("all")
 
-    // Check if user has permission to view teachers
-    const hasPermission = user?.role === "admin"
+    // Check if user has permission to view students
+    const hasPermission = user?.role === "teacher" || user?.role === "admin"
 
     useEffect(() => {
         if (!hasPermission) return
 
-        const fetchTeachers = async () => {
+        const fetchStudents = async () => {
             try {
                 setLoading(true)
 
-                // Get all teachers
-                const teachersData = await userDataService.getUsersDataByRole("teacher")
+                // Get all students
+                const studentsData = await userDataService.getUsersDataByRole("student")
 
                 // Get all classes to calculate stats
                 const allClasses = await classService.getAllClasses()
 
-                // Calculate stats for each teacher
-                const teachersWithStats: TeacherWithStats[] = await Promise.all(
-                    teachersData.map(async (teacher) => {
-                        const teacherClasses = allClasses.filter((cls) => cls.teacher_id === teacher.id)
-                        const activeClasses = teacherClasses.filter((cls) => cls.class_status === "active")
-                        const totalStudents = teacherClasses.reduce((sum, cls) => sum + (cls.enrolled_students?.length || 0), 0)
-                        const recentClasses = teacherClasses.slice(0, 3) // Get 3 most recent classes
+                // Calculate stats for each student
+                const studentsWithStats: StudentWithStats[] = await Promise.all(
+                    studentsData.map(async (student) => {
+                        // Find classes where student is enrolled
+                        const enrolledClasses = allClasses.filter((cls) => cls.enrolled_students?.includes(student.id))
+
+                        const activeEnrollments = enrolledClasses.filter((cls) => cls.class_status === "active").length
+                        const completedClasses = enrolledClasses.filter((cls) => cls.class_status === "completed").length
+                        const recentClasses = enrolledClasses
+                            .sort((a, b) => {
+                                const dateA = a.created_at?.toDate() || new Date(0)
+                                const dateB = b.created_at?.toDate() || new Date(0)
+                                return dateB.getTime() - dateA.getTime()
+                            })
+                            .slice(0, 3)
 
                         return {
-                            ...teacher,
-                            totalClasses: teacherClasses.length,
-                            activeClasses: activeClasses.length,
-                            totalStudents,
+                            ...student,
+                            enrolledClasses,
+                            activeEnrollments,
+                            completedClasses,
                             recentClasses,
                         }
                     }),
                 )
 
-                setTeachers(teachersWithStats)
-                setFilteredTeachers(teachersWithStats)
+                setStudents(studentsWithStats)
+                setFilteredStudents(studentsWithStats)
             } catch (error) {
-                console.error("Error fetching teachers:", error)
+                console.error("Error fetching students:", error)
             } finally {
                 setLoading(false)
             }
         }
 
-        fetchTeachers()
+        fetchStudents()
     }, [hasPermission])
 
-    // Filter teachers based on search and filters
+    // Filter students based on search and filters
     useEffect(() => {
-        let filtered = teachers
+        let filtered = students
 
         // Search filter
         if (searchTerm) {
             const searchLower = searchTerm.toLowerCase()
             filtered = filtered.filter(
-                (teacher) =>
-                    teacher.name.toLowerCase().includes(searchLower) ||
-                    teacher.email.toLowerCase().includes(searchLower) ||
-                    teacher.department?.toLowerCase().includes(searchLower) ||
-                    teacher.subject?.toLowerCase().includes(searchLower),
+                (student) =>
+                    student.name.toLowerCase().includes(searchLower) ||
+                    student.email.toLowerCase().includes(searchLower) ||
+                    student.id.toLowerCase().includes(searchLower),
             )
         }
 
-        // Department filter
-        if (departmentFilter !== "all") {
-            filtered = filtered.filter((teacher) => teacher.department === departmentFilter)
+        // Grade filter
+        if (gradeFilter !== "all") {
+            filtered = filtered.filter((student) => student.grade === gradeFilter)
         }
 
-        // Status filter (active = has active classes)
+        // Status filter (active = has active enrollments)
         if (statusFilter !== "all") {
             if (statusFilter === "active") {
-                filtered = filtered.filter((teacher) => teacher.activeClasses > 0)
+                filtered = filtered.filter((student) => student.activeEnrollments > 0)
             } else {
-                filtered = filtered.filter((teacher) => teacher.activeClasses === 0)
+                filtered = filtered.filter((student) => student.activeEnrollments === 0)
             }
         }
 
-        setFilteredTeachers(filtered)
-    }, [teachers, searchTerm, departmentFilter, statusFilter])
+        setFilteredStudents(filtered)
+    }, [students, searchTerm, gradeFilter, statusFilter])
 
     if (!hasPermission) {
         return (
@@ -113,10 +131,10 @@ export default function TeachersPage() {
                 <Card className="w-full max-w-md">
                     <CardContent className="pt-6">
                         <div className="text-center">
-                            <UserCheck className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                            <GraduationCap className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                             <h3 className="text-lg font-semibold mb-2">Access Restricted</h3>
                             <p className="text-muted-foreground">
-                                You don't have permission to view teachers. This page is only accessible to administrators.
+                                You don't have permission to view students. This page is accessible to teachers and administrators.
                             </p>
                         </div>
                     </CardContent>
@@ -130,8 +148,8 @@ export default function TeachersPage() {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold">Teachers</h1>
-                        <p className="text-muted-foreground">Manage and view all teaching staff</p>
+                        <h1 className="text-3xl font-bold">Students</h1>
+                        <p className="text-muted-foreground">Monitor student progress and enrollments</p>
                     </div>
                 </div>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -149,22 +167,24 @@ export default function TeachersPage() {
         )
     }
 
-    const departments = [...new Set(teachers.map((t) => t.department).filter(Boolean))]
+    const grades = [...new Set(students.map((s) => s.grade).filter(Boolean))]
 
     return (
         <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between mt-8">
                 <div>
-                    <h1 className="text-3xl font-bold">Teachers</h1>
+                    <h1 className="text-3xl font-bold">Students</h1>
                     <p className="text-muted-foreground">
-                        Manage and view all teaching staff ({filteredTeachers.length} teachers)
+                        Monitor student progress and enrollments ({filteredStudents.length} students)
                     </p>
                 </div>
-                <Button>
-                    <UserCheck className="mr-2 h-4 w-4" />
-                    Add Teacher
-                </Button>
+                {user?.role === "admin" && (
+                    <Button>
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        Add Student
+                    </Button>
+                )}
             </div>
 
             {/* Stats Cards */}
@@ -172,10 +192,10 @@ export default function TeachersPage() {
                 <Card>
                     <CardContent className="p-6">
                         <div className="flex items-center">
-                            <Users className="h-4 w-4 text-muted-foreground" />
+                            <GraduationCap className="h-4 w-4 text-muted-foreground" />
                             <div className="ml-2">
-                                <p className="text-sm font-medium text-muted-foreground">Total Teachers</p>
-                                <p className="text-2xl font-bold">{teachers.length}</p>
+                                <p className="text-sm font-medium text-muted-foreground">Total Students</p>
+                                <p className="text-2xl font-bold">{students.length}</p>
                             </div>
                         </div>
                     </CardContent>
@@ -183,10 +203,10 @@ export default function TeachersPage() {
                 <Card>
                     <CardContent className="p-6">
                         <div className="flex items-center">
-                            <UserCheck className="h-4 w-4 text-green-600" />
+                            <TrendingUp className="h-4 w-4 text-green-600" />
                             <div className="ml-2">
-                                <p className="text-sm font-medium text-muted-foreground">Active Teachers</p>
-                                <p className="text-2xl font-bold">{teachers.filter((t) => t.activeClasses > 0).length}</p>
+                                <p className="text-sm font-medium text-muted-foreground">Active Students</p>
+                                <p className="text-2xl font-bold">{students.filter((s) => s.activeEnrollments > 0).length}</p>
                             </div>
                         </div>
                     </CardContent>
@@ -196,8 +216,8 @@ export default function TeachersPage() {
                         <div className="flex items-center">
                             <BookOpen className="h-4 w-4 text-blue-600" />
                             <div className="ml-2">
-                                <p className="text-sm font-medium text-muted-foreground">Total Classes</p>
-                                <p className="text-2xl font-bold">{teachers.reduce((sum, t) => sum + t.totalClasses, 0)}</p>
+                                <p className="text-sm font-medium text-muted-foreground">Total Enrollments</p>
+                                <p className="text-2xl font-bold">{students.reduce((sum, s) => sum + s.enrolledClasses.length, 0)}</p>
                             </div>
                         </div>
                     </CardContent>
@@ -205,10 +225,16 @@ export default function TeachersPage() {
                 <Card>
                     <CardContent className="p-6">
                         <div className="flex items-center">
-                            <GraduationCap className="h-4 w-4 text-purple-600" />
+                            <Users className="h-4 w-4 text-purple-600" />
                             <div className="ml-2">
-                                <p className="text-sm font-medium text-muted-foreground">Total Students</p>
-                                <p className="text-2xl font-bold">{teachers.reduce((sum, t) => sum + t.totalStudents, 0)}</p>
+                                <p className="text-sm font-medium text-muted-foreground">Avg Enrollments</p>
+                                <p className="text-2xl font-bold">
+                                    {students.length > 0
+                                        ? Math.round(
+                                            (students.reduce((sum, s) => sum + s.enrolledClasses.length, 0) / students.length) * 10,
+                                        ) / 10
+                                        : 0}
+                                </p>
                             </div>
                         </div>
                     </CardContent>
@@ -222,21 +248,21 @@ export default function TeachersPage() {
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                             <Input
-                                placeholder="Search teachers by name, email, department, or subject..."
+                                placeholder="Search students by name, email, or student ID..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="pl-10"
                             />
                         </div>
-                        <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                            <SelectTrigger className="w-full sm:w-[180px]">
-                                <SelectValue placeholder="Department" />
+                        <Select value={gradeFilter} onValueChange={setGradeFilter}>
+                            <SelectTrigger className="w-full sm:w-[140px]">
+                                <SelectValue placeholder="Grade" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">All Departments</SelectItem>
-                                {departments.map((dept) => (
-                                    <SelectItem key={dept} value={dept!}>
-                                        {dept}
+                                <SelectItem value="all">All Grades</SelectItem>
+                                {grades.map((grade) => (
+                                    <SelectItem key={grade} value={grade!}>
+                                        {grade}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
@@ -255,30 +281,30 @@ export default function TeachersPage() {
                 </CardContent>
             </Card>
 
-            {/* Teachers Grid */}
-            {filteredTeachers.length === 0 ? (
+            {/* Students Grid */}
+            {filteredStudents.length === 0 ? (
                 <Card>
                     <CardContent className="p-12 text-center">
-                        <UserCheck className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">No teachers found</h3>
+                        <GraduationCap className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">No students found</h3>
                         <p className="text-muted-foreground">
-                            {searchTerm || departmentFilter !== "all" || statusFilter !== "all"
+                            {searchTerm || gradeFilter !== "all" || statusFilter !== "all"
                                 ? "Try adjusting your search or filters"
-                                : "No teachers have been added yet"}
+                                : "No students have been enrolled yet"}
                         </p>
                     </CardContent>
                 </Card>
             ) : (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {filteredTeachers.map((teacher) => (
-                        <Card key={teacher.id} className="hover:shadow-lg transition-shadow">
+                    {filteredStudents.map((student) => (
+                        <Card key={student.id} className="hover:shadow-lg transition-shadow">
                             <CardHeader className="pb-3">
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-center space-x-3">
                                         <Avatar className="h-12 w-12">
-                                            <AvatarImage src={teacher.avatar || "/placeholder.svg"} alt={teacher.name} />
+                                            <AvatarImage src={student.avatar || "/placeholder.svg"} alt={student.name} />
                                             <AvatarFallback>
-                                                {teacher.name
+                                                {student.name
                                                     .split(" ")
                                                     .map((n) => n[0])
                                                     .join("")
@@ -286,8 +312,8 @@ export default function TeachersPage() {
                                             </AvatarFallback>
                                         </Avatar>
                                         <div>
-                                            <CardTitle className="text-lg">{teacher.name}</CardTitle>
-                                            <CardDescription>{teacher.email}</CardDescription>
+                                            <CardTitle className="text-lg">{student.name}</CardTitle>
+                                            <CardDescription>{student.email}</CardDescription>
                                         </div>
                                     </div>
                                     <DropdownMenu>
@@ -306,56 +332,54 @@ export default function TeachersPage() {
                                                 View Classes
                                             </DropdownMenuItem>
                                             <DropdownMenuItem>
-                                                <Users className="mr-2 h-4 w-4" />
-                                                View Students
+                                                <TrendingUp className="mr-2 h-4 w-4" />
+                                                View Progress
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </div>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                {/* Teacher Info */}
+                                {/* Student Info */}
                                 <div className="space-y-2">
-                                    {teacher.subject && (
+                                    {student.grade && (
                                         <div className="flex items-center text-sm">
-                                            <BookOpen className="mr-2 h-4 w-4 text-muted-foreground" />
-                                            <span>Subject: {teacher.subject}</span>
+                                            <GraduationCap className="mr-2 h-4 w-4 text-muted-foreground" />
+                                            <span>Grade: {student.grade}</span>
                                         </div>
                                     )}
-                                    {teacher.department && (
-                                        <div className="flex items-center text-sm">
-                                            <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
-                                            <span>Department: {teacher.department}</span>
-                                        </div>
-                                    )}
-                                    {teacher.phone && (
+                                    {student.phone && (
                                         <div className="flex items-center text-sm">
                                             <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
-                                            <span>{teacher.phone}</span>
+                                            <span>{student.phone}</span>
                                         </div>
                                     )}
+                                    <div className="flex items-center text-sm">
+                                        <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
+                                        <span>Student ID: {student.id.slice(-8).toUpperCase()}</span>
+                                    </div>
                                 </div>
 
                                 {/* Stats */}
                                 <div className="grid grid-cols-3 gap-4 pt-4 border-t">
                                     <div className="text-center">
-                                        <p className="text-2xl font-bold text-blue-600">{teacher.totalClasses}</p>
+                                        <p className="text-2xl font-bold text-blue-600">{student.enrolledClasses.length}</p>
                                         <p className="text-xs text-muted-foreground">Total Classes</p>
                                     </div>
                                     <div className="text-center">
-                                        <p className="text-2xl font-bold text-green-600">{teacher.activeClasses}</p>
-                                        <p className="text-xs text-muted-foreground">Active Classes</p>
+                                        <p className="text-2xl font-bold text-green-600">{student.activeEnrollments}</p>
+                                        <p className="text-xs text-muted-foreground">Active</p>
                                     </div>
                                     <div className="text-center">
-                                        <p className="text-2xl font-bold text-purple-600">{teacher.totalStudents}</p>
-                                        <p className="text-xs text-muted-foreground">Students</p>
+                                        <p className="text-2xl font-bold text-purple-600">{student.completedClasses}</p>
+                                        <p className="text-xs text-muted-foreground">Completed</p>
                                     </div>
                                 </div>
 
                                 {/* Status Badge */}
                                 <div className="flex justify-between items-center pt-2">
-                                    <Badge variant={teacher.activeClasses > 0 ? "default" : "secondary"}>
-                                        {teacher.activeClasses > 0 ? "Active" : "Inactive"}
+                                    <Badge variant={student.activeEnrollments > 0 ? "default" : "secondary"}>
+                                        {student.activeEnrollments > 0 ? "Active" : "Inactive"}
                                     </Badge>
                                     <div className="flex gap-2">
                                         <Button size="sm" variant="outline">
@@ -368,11 +392,11 @@ export default function TeachersPage() {
                                 </div>
 
                                 {/* Recent Classes */}
-                                {teacher.recentClasses.length > 0 && (
+                                {student.recentClasses.length > 0 && (
                                     <div className="pt-2 border-t">
                                         <p className="text-sm font-medium mb-2">Recent Classes:</p>
                                         <div className="space-y-1">
-                                            {teacher.recentClasses.slice(0, 2).map((cls) => (
+                                            {student.recentClasses.slice(0, 2).map((cls) => (
                                                 <div key={cls.id} className="text-xs text-muted-foreground">
                                                     • {cls.class_title}
                                                 </div>

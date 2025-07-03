@@ -7,7 +7,7 @@ import { doc, getDoc } from "firebase/firestore"
 import { auth, db } from "@/lib/firebase"
 import { profileService } from "@/lib/firebase-admin"
 
-interface UserData {
+export interface UserData {
   uid: string
   email: string | null
   name: string

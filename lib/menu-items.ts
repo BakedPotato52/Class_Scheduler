@@ -45,15 +45,15 @@ export const getFilteredMenuItems = (role: UserRole): MenuSection[] => [
                 visible: ["teacher", "admin"],
             },
             {
-                label: "Teachers",
-                icon: UserCheck,
-                href: `/${role}/teachers`,
-                visible: ["admin"],
-            },
-            {
                 label: "Analytics",
                 icon: Shield,
                 href: `/${role}/analytics`,
+                visible: ["admin"],
+            },
+            {
+                label: "Teachers",
+                icon: UserCheck,
+                href: `/${role}/teachers`,
                 visible: ["admin"],
             },
         ],
