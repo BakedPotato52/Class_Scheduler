@@ -34,7 +34,7 @@ export default function DashboardLayout({
     }
 
     return (
-        <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:text-white">
             {/* Desktop Sidebar */}
             <Suspense fallback={<div className="animate-pulse h-64 bg-gray-200 rounded-md"></div>}>
                 <Sidebar />
