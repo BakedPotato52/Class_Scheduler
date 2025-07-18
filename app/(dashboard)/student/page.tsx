@@ -73,7 +73,7 @@ export default function StudentDashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 p-3">
         <StatsCard
           title="Available Classes"
           value={availableClasses.length.toString()}
@@ -114,7 +114,7 @@ export default function StudentDashboard() {
       {/* Enrolled Classes */}
       {enrolledClasses.length > 0 && (
         <DashboardCard title="Your Enrolled Classes" subtitle="Classes you've joined">
-          <div className="space-y-4">
+          <div className="space-y-4 p-3">
             {enrolledClasses.map((classItem) => (
               <ClassCard
                 key={classItem.id}
@@ -138,7 +138,7 @@ export default function StudentDashboard() {
             <p className="text-gray-600">Check back later for new classes</p>
           </div>
         ) : (
-          <div className="space-y-4 sm:mb-[64px]">
+          <div className="space-y-4 sm:mb-[64px] p-3">
             {availableClasses.map((classItem) => (
               <ClassCard
                 key={classItem.id}

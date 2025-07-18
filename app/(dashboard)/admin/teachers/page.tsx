@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Search, Filter, Mail, Phone, BookOpen, Users, MoreVertical, UserCheck, GraduationCap } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
-import { userDataService, classService, type UserData, type ClassData } from "@/lib/firebase-admin"
+import { userDataService, classService, type UserData, type ClassData, profileService } from "@/lib/firebase-admin"
 
 interface TeacherWithStats extends UserData {
     totalClasses: number
@@ -44,9 +44,20 @@ export default function TeachersPage() {
                 // Get all classes to calculate stats
                 const allClasses = await classService.getAllClasses()
 
+                // Fetch avatars for each teacher from profile collection
+                const teachersWithAvatars = await Promise.all(
+                    teachersData.map(async (teacher) => {
+                        const profile = await profileService.getUserProfile(teacher.id || "")
+                        return {
+                            ...teacher,
+                            avatar: profile?.avatar ?? undefined,
+                        }
+                    })
+                )
+
                 // Calculate stats for each teacher
                 const teachersWithStats: TeacherWithStats[] = await Promise.all(
-                    teachersData.map(async (teacher) => {
+                    teachersWithAvatars.map(async (teacher) => {
                         const teacherClasses = allClasses.filter((cls) => cls.teacher_id === teacher.id)
                         const activeClasses = teacherClasses.filter((cls) => cls.class_status === "active")
                         const totalStudents = teacherClasses.reduce((sum, cls) => sum + (cls.enrolled_students?.length || 0), 0)
@@ -128,13 +139,13 @@ export default function TeachersPage() {
     if (loading) {
         return (
             <div className="space-y-6">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between p-3">
                     <div>
                         <h1 className="text-3xl font-bold">Teachers</h1>
                         <p className="text-muted-foreground">Manage and view all teaching staff</p>
                     </div>
                 </div>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 p-3">
                     {[...Array(6)].map((_, i) => (
                         <Card key={i} className="animate-pulse">
                             <CardContent className="p-6">
@@ -152,23 +163,20 @@ export default function TeachersPage() {
     const departments = [...new Set(teachers.map((t) => t.department).filter(Boolean))]
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 mb-16">
             {/* Header */}
-            <div className="flex items-center justify-between mt-8">
+            <div className="flex items-center justify-between mt-8 p-3">
                 <div>
                     <h1 className="text-3xl font-bold">Teachers</h1>
                     <p className="text-muted-foreground">
                         Manage and view all teaching staff ({filteredTeachers.length} teachers)
                     </p>
                 </div>
-                <Button>
-                    <UserCheck className="mr-2 h-4 w-4" />
-                    Add Teacher
-                </Button>
+
             </div>
 
             {/* Stats Cards */}
-            <div className="grid gap-4 md:grid-cols-4">
+            <div className="grid gap-4 grid-cols-2 md:grid-cols-4 p-3">
                 <Card>
                     <CardContent className="p-6">
                         <div className="flex items-center">
@@ -202,6 +210,7 @@ export default function TeachersPage() {
                         </div>
                     </CardContent>
                 </Card>
+
                 <Card>
                     <CardContent className="p-6">
                         <div className="flex items-center">
@@ -269,7 +278,7 @@ export default function TeachersPage() {
                     </CardContent>
                 </Card>
             ) : (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 p-3">
                     {filteredTeachers.map((teacher) => (
                         <Card key={teacher.id} className="hover:shadow-lg transition-shadow">
                             <CardHeader className="pb-3">

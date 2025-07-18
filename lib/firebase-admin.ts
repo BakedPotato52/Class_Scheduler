@@ -554,7 +554,7 @@ export const userDataService = {
     // Get user data
     async getUserData(userId: string): Promise<UserData | null> {
         try {
-            const docRef = doc(db, "userData", userId)
+            const docRef = doc(db, "users", userId)
             const docSnap = await getDoc(docRef)
 
             if (docSnap.exists()) {
@@ -573,7 +573,7 @@ export const userDataService = {
     // Create or update user data
     async updateUserData(userId: string, userData: Partial<UserData>): Promise<void> {
         try {
-            const userDataRef = doc(db, "userData", userId)
+            const userDataRef = doc(db, "users", userId)
             await setDoc(
                 userDataRef,
                 {
@@ -592,7 +592,7 @@ export const userDataService = {
     // Create initial user data
     async createUserData(userData: UserData): Promise<void> {
         try {
-            const userDataRef = doc(db, "userData", userData.id)
+            const userDataRef = doc(db, "users", userData.id)
             await setDoc(userDataRef, {
                 ...userData,
                 created_at: Timestamp.now(),
@@ -607,7 +607,7 @@ export const userDataService = {
     // Get all users data
     async getAllUsersData(): Promise<UserData[]> {
         try {
-            const querySnapshot = await getDocs(collection(db, "userData"))
+            const querySnapshot = await getDocs(collection(db, "users"))
             return querySnapshot.docs.map(
                 (doc) =>
                     ({
@@ -624,7 +624,7 @@ export const userDataService = {
     // Get users data by role
     async getUsersDataByRole(role: "student" | "teacher" | "admin"): Promise<UserData[]> {
         try {
-            const q = query(collection(db, "userData"), where("role", "==", role))
+            const q = query(collection(db, "users"), where("role", "==", role))
             const querySnapshot = await getDocs(q)
             return querySnapshot.docs.map(
                 (doc) =>
@@ -659,7 +659,7 @@ export const userDataService = {
     async getUsersWithPagination(limitCount: number = 20): Promise<UserData[]> {
         try {
             const q = query(
-                collection(db, "userData"),
+                collection(db, "users"),
                 orderBy("created_at", "desc"),
                 limit(limitCount)
             )
@@ -680,7 +680,7 @@ export const userDataService = {
     // Delete user data
     async deleteUserData(userId: string): Promise<void> {
         try {
-            await deleteDoc(doc(db, "userData", userId))
+            await deleteDoc(doc(db, "users", userId))
         } catch (error) {
             console.error("Error deleting user data:", error)
             throw error
