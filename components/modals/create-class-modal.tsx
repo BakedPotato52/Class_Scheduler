@@ -45,8 +45,8 @@ export default function CreateClassModal({ isOpen, onClose, onSuccess }: CreateC
         e.preventDefault()
         if (!user) return
 
-        // Validate times are not in the past
-        const now = new Date()
+        // Validate times are not in the past using device time
+        const now = new Date(Date.now())
         const startTime = new Date(formData.start_time)
         const endTime = new Date(formData.end_time)
 
