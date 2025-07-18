@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .chart-bar {
+            transition: all 0.3s ease;
+        }
+
+        .chart-bar:hover {
+            opacity: 0.8;
+        }
+
+        .sidebar-item {
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        .calendar-day {
+            transition: all 0.2s ease;
+        }
+
+        .calendar-day:hover {
+            background-color: #e5e7eb;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans">
+    <!-- Sidebar -->
+    <div class="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 p-6 z-10">
+        <div class="space-y-6">
+            <!-- Logo/Dashboard -->
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-th-large text-white text-sm"></i>
+                </div>
+                <span class="font-semibold text-gray-900">Dashboard</span>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="space-y-2">
+                <div class="sidebar-item flex items-center space-x-3 p-2 rounded-lg cursor-pointer text-gray-600">
+                    <i class="fas fa-calendar w-4 h-4"></i>
+                    <span>Schedule</span>
+                </div>
+                <div class="sidebar-item flex items-center space-x-3 p-2 rounded-lg cursor-pointer text-gray-600">
+                    <i class="fas fa-inbox w-4 h-4"></i>
+                    <span>Inbox</span>
+                </div>
+                <div class="sidebar-item flex items-center space-x-3 p-2 rounded-lg cursor-pointer text-gray-600">
+                    <i class="fas fa-users w-4 h-4"></i>
+                    <span>Students</span>
+                </div>
+                <div class="sidebar-item flex items-center space-x-3 p-2 rounded-lg cursor-pointer text-gray-600">
+                    <i class="fas fa-file-alt w-4 h-4"></i>
+                    <span>Report</span>
+                </div>
+                <div class="sidebar-item flex items-center space-x-3 p-2 rounded-lg cursor-pointer text-gray-600">
+                    <i class="fas fa-cog w-4 h-4"></i>
+                    <span>Settings</span>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Create Class Chat Card -->
+        <div class="absolute bottom-6 left-6 right-6">
+            <div class="bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-lg p-4">
+                <div class="flex items-center justify-center w-12 h-12 bg-white bg-opacity-20 rounded-lg mb-3">
+                    <i class="fas fa-comments text-xl"></i>
+                </div>
+                <h3 class="font-semibold mb-1">Create new class chat now</h3>
+                <button
+                    class="w-full mt-3 bg-yellow-400 text-black hover:bg-yellow-500 py-2 px-4 rounded-lg font-medium transition-colors">
+                    Create class
+                </button>
+            </div>
+            <div class="flex items-center mt-4 text-sm text-gray-600">
+                <div class="w-4 h-4 bg-black rounded-full mr-2"></div>
+                Attwood School
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Welcome back, Mr.Sanjay Sarkar</h1>
+                <p class="text-gray-600" id="current-date">June 30, Monday</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <i class="fas fa-search text-gray-600"></i>
+                </button>
+                <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
+                    <i class="fas fa-bell text-gray-600"></i>
+                    <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                </button>
+                <div class="flex items-center space-x-3">
+                    <div class="text-right">
+                        <p class="font-semibold">TalkEng</p>
+                        <p class="text-sm text-gray-600">talkeng@gmail.com</p>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face"
+                        alt="Anna Wilson" class="w-10 h-10 rounded-full">
+                    <div class="text-sm">
+                        <div class="flex items-center space-x-4">
+                            <span>Rank: <strong>14</strong></span>
+                            <span>Classes: <strong>7</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hero Banner -->
+        <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex-1">
+                    <h2 class="text-xl font-semibold mb-2">
+                        Your students average progress is <span class="text-2xl font-bold">73%</span>.
+                    </h2>
+                    <p class="text-blue-100">Level up your students to improve your teacher rank!</p>
+                </div>
+                <div class="w-48 h-32 bg-white bg-opacity-10 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-users text-6xl text-white opacity-60"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-6">
+            <!-- Working Hours Chart -->
+            <div class="col-span-5 bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold">Working Hours</h3>
+                        <div class="flex items-center space-x-2">
+                            <button class="p-1 hover:bg-gray-100 rounded" onclick="previousWeek()">
+                                <i class="fas fa-chevron-left text-gray-400"></i>
+                            </button>
+                            <span class="text-sm font-medium" id="week-range">01 - 30 June 2025</span>
+                            <button class="p-1 hover:bg-gray-100 rounded" onclick="nextWeek()">
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-end space-x-2 h-48 mb-4" id="chart-container">
+                        <!-- Chart bars will be generated by JavaScript -->
+                    </div>
+                    <div class="flex justify-between text-sm mb-4">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-blue-500 rounded"></div>
+                            <span>Online</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-purple-500 rounded"></div>
+                            <span>Offline</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm font-semibold">
+                        <span id="total-online">30h 45m</span>
+                        <span id="total-offline">12h 30m</span>
+                        <span id="total-hours">14h 15m</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Group Chats -->
+            <div class="col-span-4 bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold">Group chats</h3>
+                        <button class="text-sm text-blue-600 hover:text-blue-800">View all</button>
+                    </div>
+                </div>
+                <div class="p-6 space-y-4" id="group-chats">
+                    <!-- Group chats will be generated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Calendar -->
+            <div class="col-span-3 bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <button class="p-1 hover:bg-gray-100 rounded" onclick="previousMonth()">
+                                <i class="fas fa-chevron-left text-gray-400"></i>
+                            </button>
+                            <span class="font-semibold" id="calendar-month">June 2025</span>
+                            <button class="p-1 hover:bg-gray-100 rounded" onclick="nextMonth()">
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-7 gap-1 text-xs" id="calendar-grid">
+                        <!-- Calendar will be generated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Tests -->
+            <div class="col-span-8 bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold">Student tests</h3>
+                        <button class="text-sm text-blue-600 hover:text-blue-800">All tests</button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-4 gap-4 text-sm font-medium text-gray-500 pb-2 border-b">
+                            <span>Test name</span>
+                            <span>Deadline</span>
+                            <span>Student</span>
+                            <span>Status</span>
+                        </div>
+                        <div id="student-tests">
+                            <!-- Student tests will be generated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Classes -->
+            <div class="col-span-4 bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold">Upcoming Classes</h3>
+                        <button class="text-sm text-blue-600 hover:text-blue-800">View all</button>
+                    </div>
+                </div>
+                <div class="p-6 space-y-4" id="upcoming-classes">
+                    <!-- Upcoming classes will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const workingHoursData = [
+            { day: 1, online: 4, offline: 2 },
+            { day: 2, online: 6, offline: 1 },
+            { day: 3, online: 3, offline: 4 },
+            { day: 4, online: 5, offline: 3 },
+            { day: 5, online: 7, offline: 2 },
+            { day: 6, online: 4, offline: 5 },
+            { day: 7, online: 6, offline: 1 },
+            { day: 8, online: 5, offline: 3 }
+        ];
+
+        const groupChatsData = [
+            {
+                name: "Teacher's Group",
+                message: "Purbani Banik: Who can replace me on Wed...",
+                unread: 14,
+                avatar: "https://www.shutterstock.com/shutterstock/photos/447575389/display_1500/stock-vector-school-teachers-team-in-classroom-447575389.jpg"
+            },
+            {
+                name: "CSE",
+                message: "You: @tanni please check task.pdf",
+                unread: 0,
+                avatar: "https://tse4.mm.bing.net/th/id/OIP.Od7KF5rpPqIqpkzrEXecxwHaEK?pid=Api&P=0&h=180"
+            },
+            {
+                name: "CSE AIDS",
+                message: "Arpita Banik: Where can I read the info for...",
+                unread: 2,
+                avatar: "https://tse1.mm.bing.net/th/id/OIP.nnuIpy0rqxBBAfJ-kTSLxAHaDt?pid=Api&P=0&h=180"
+            }
+        ];
+
+        const studentTestsData = [
+            {
+                name: "Web Technology",
+                deadline: "August 09, 2025",
+                student: "Tanni Roy",
+                status: "Active",
+                avatar: "https://tse3.mm.bing.net/th/id/OIP.NGZQOiei1ClWZbYvj19NCgHaHa?pid=Api&P=0&h=180"
+            },
+            {
+                name: "Cryptography and Computer Network",
+                deadline: "August 10, 2025",
+                student: "Taniya Patari",
+                status: "Active",
+                avatar: "https://tse3.mm.bing.net/th/id/OIP.aGiYSgUxd_Gcfuo0vp9nlAHaHa?pid=Api&P=0&h=180"
+            },
+            {
+                name: "Data Structure and Algorithm",
+                deadline: "August 10, 2025",
+                student: "Gourav chowdhuri",
+                status: "Reviewed",
+                avatar: "https://tse2.mm.bing.net/th/id/OIP.0bYdwVY88s47X5QWURn-WgHaKq?pid=Api&P=0&h=180"
+            },
+            {
+                name: "Compiler Design",
+                deadline: "August 11, 2025",
+                student: "Amit Karmakar",
+                status: "Not viewed",
+                avatar: "https://tse3.mm.bing.net/th/id/OIP.9nUESTGfmjiWIcD32GE_rAHaJ4?pid=Api&P=0&h=180"
+            }
+        ];
+
+        const upcomingClassesData = [
+            {
+                time: "10:30",
+                title: "Compiler Design | CSE 2nd Sem",
+                subtitle: "August 30, Offline",
+                number: 9
+            },
+            {
+                time: "11:30",
+                title: "Software Designing | CSE 6th Sem",
+                subtitle: "August 30, Offline",
+                number: 9
+            },
+            {
+                time: "14:30",
+                title: "Automata | CSE 4th Sem",
+                subtitle: "August 30, Online • Zoom meeting",
+                number: 9
+            }
+        ];
+
+        // Initialize dashboard
+        function initDashboard() {
+            renderWorkingHoursChart();
+            renderGroupChats();
+            renderCalendar();
+            renderStudentTests();
+            renderUpcomingClasses();
+            updateCurrentDate();
+        }
+
+        // Working Hours Chart
+        function renderWorkingHoursChart() {
+            const container = document.getElementById('chart-container');
+            const maxHours = Math.max(...workingHoursData.map(d => d.online + d.offline));
+
+            container.innerHTML = '';
+
+            workingHoursData.forEach(data => {
+                const barContainer = document.createElement('div');
+                barContainer.className = 'flex-1 flex flex-col items-center';
+
+                const onlineHeight = (data.online / maxHours) * 120;
+                const offlineHeight = (data.offline / maxHours) * 120;
+
+                barContainer.innerHTML = `
+                    <div class="w-full flex flex-col items-center space-y-1">
+                        <div class="w-6 bg-blue-500 rounded-t chart-bar" style="height: ${onlineHeight}px"></div>
+                        <div class="w-6 bg-purple-500 rounded-b chart-bar" style="height: ${offlineHeight}px"></div>
+                    </div>
+                    <span class="text-xs text-gray-500 mt-2">${data.day}</span>
+                `;
+
+                container.appendChild(barContainer);
+            });
+        }
+
+        // Group Chats
+        function renderGroupChats() {
+            const container = document.getElementById('group-chats');
+            container.innerHTML = '';
+
+            groupChatsData.forEach(chat => {
+                const chatElement = document.createElement('div');
+                chatElement.className = 'flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors';
+
+                chatElement.innerHTML = `
+                    <img src="${chat.avatar}" alt="${chat.name}" class="w-10 h-10 rounded-full">
+                    <div class="flex-1 min-w-0">
+                        <p class="font-medium text-sm">${chat.name}</p>
+                        <p class="text-xs text-gray-500 truncate">${chat.message}</p>
+                    </div>
+                    ${chat.unread > 0 ? `<span class="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">${chat.unread}</span>` : ''}
+                `;
+
+                container.appendChild(chatElement);
+            });
+        }
+
+        // Calendar
+        function renderCalendar() {
+            const container = document.getElementById('calendar-grid');
+            const daysOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+            const calendarDays = [
+                { day: 29, isCurrentMonth: false },
+                { day: 30, isCurrentMonth: false },
+                { day: 31, isCurrentMonth: false },
+                { day: 1, isCurrentMonth: true },
+                { day: 2, isCurrentMonth: true },
+                { day: 3, isCurrentMonth: true },
+                { day: 4, isCurrentMonth: true },
+                { day: 5, isCurrentMonth: true },
+                { day: 6, isCurrentMonth: true },
+                { day: 7, isCurrentMonth: true },
+                { day: 8, isCurrentMonth: true, isToday: true },
+                { day: 9, isCurrentMonth: true },
+                { day: 10, isCurrentMonth: true },
+                { day: 11, isCurrentMonth: true },
+                { day: 12, isCurrentMonth: true },
+                { day: 13, isCurrentMonth: true },
+                { day: 14, isCurrentMonth: true },
+                { day: 15, isCurrentMonth: true },
+                { day: 16, isCurrentMonth: true },
+                { day: 17, isCurrentMonth: true },
+                { day: 18, isCurrentMonth: true },
+                { day: 19, isCurrentMonth: true },
+                { day: 20, isCurrentMonth: true },
+                { day: 21, isCurrentMonth: true },
+                { day: 22, isCurrentMonth: true },
+                { day: 23, isCurrentMonth: true },
+                { day: 24, isCurrentMonth: true },
+                { day: 25, isCurrentMonth: true },
+                { day: 26, isCurrentMonth: true },
+                { day: 27, isCurrentMonth: true },
+                { day: 28, isCurrentMonth: true },
+                { day: 29, isCurrentMonth: true },
+                { day: 30, isCurrentMonth: true },
+                { day: 1, isCurrentMonth: false },
+                { day: 2, isCurrentMonth: false }
+            ];
+
+            container.innerHTML = '';
+
+            // Add day headers
+            daysOfWeek.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'text-center text-xs font-medium text-gray-500';
+                dayHeader.textContent = day;
+                container.appendChild(dayHeader);
+            });
+
+            // Add calendar days
+            calendarDays.forEach(day => {
+                const dayElement = document.createElement('div');
+                dayElement.className = `calendar-day p-2 text-center text-sm ${day.isCurrentMonth ? 'text-gray-900' : 'text-gray-400'} ${day.isToday ? 'bg-blue-100 font-semibold rounded-full' : ''}`;
+                dayElement.textContent = day.day;
+                container.appendChild(dayElement);
+            });
+        }
+
+        // Student Tests
+        function renderStudentTests() {
+            const container = document.getElementById('student-tests');
+            container.innerHTML = '';
+
+            studentTestsData.forEach(test => {
+                const testElement = document.createElement('div');
+                testElement.className = 'grid grid-cols-4 gap-4 items-center py-2';
+
+                testElement.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <img src="${test.avatar}" alt="${test.student}" class="w-8 h-8 rounded-full">
+                        <span class="font-medium">${test.name}</span>
+                    </div>
+                    <span class="text-gray-500">${test.deadline}</span>
+                    <span class="text-gray-500">${test.student}</span>
+                    <span class="status-badge ${test.status === 'Active' ? 'bg-blue-100 text-blue-800' : test.status === 'Reviewed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                        ${test.status}
+                    </span>
+                `;
+                container.appendChild(testElement);
+            });
+        }
+    

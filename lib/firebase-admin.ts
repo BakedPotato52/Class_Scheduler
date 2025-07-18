@@ -50,7 +50,7 @@ export interface StudentData {
     created_at: Timestamp
 }
 
-// New types for notifications, profile, and settings
+// Updated types for notifications, profile, and settings
 export interface NotificationData {
     id?: string
     user_id: string
@@ -72,7 +72,7 @@ export interface UserProfile {
     email: string
     role: "student" | "teacher" | "admin"
     avatar?: string
-    avatar_public_id?: string
+    avatar_public_id?: string // Cloudinary public ID for deletion
     bio?: string
     phone?: string
     location?: string
@@ -81,6 +81,23 @@ export interface UserProfile {
     department?: string // For admins
     joined_at: Timestamp
     last_active?: Timestamp
+}
+
+export interface UserData {
+    id: string
+    name: string
+    email: string
+    role: "student" | "teacher" | "admin"
+    avatar?: string
+    avatar_public_id?: string // Cloudinary public ID for deletion
+    bio?: string
+    phone?: string
+    location?: string
+    subject?: string // For teachers
+    grade?: string // For students
+    department?: string // For admins
+    created_at: Timestamp
+    updated_at?: Timestamp
 }
 
 export interface UserSettings {
@@ -110,7 +127,7 @@ export interface UserSettings {
     updated_at: Timestamp
 }
 
-// Class CRUD Operations
+// Enhanced Class CRUD Operations
 export const classService = {
     // Create a new class
     async createClass(classData: Omit<ClassData, "id" | "created_at">): Promise<string> {
@@ -532,6 +549,160 @@ export const profileService = {
     },
 }
 
+// UserData Service (for userData collection)
+export const userDataService = {
+    // Get user data
+    async getUserData(userId: string): Promise<UserData | null> {
+        try {
+            const docRef = doc(db, "users", userId)
+            const docSnap = await getDoc(docRef)
+
+            if (docSnap.exists()) {
+                return {
+                    id: docSnap.id,
+                    ...docSnap.data(),
+                } as UserData
+            }
+            return null
+        } catch (error) {
+            console.error("Error fetching user data:", error)
+            throw error
+        }
+    },
+
+    // Create or update user data
+    async updateUserData(userId: string, userData: Partial<UserData>): Promise<void> {
+        try {
+            const userDataRef = doc(db, "users", userId)
+            await setDoc(
+                userDataRef,
+                {
+                    ...userData,
+                    id: userId,
+                    updated_at: Timestamp.now(),
+                },
+                { merge: true },
+            )
+        } catch (error) {
+            console.error("Error updating user data:", error)
+            throw error
+        }
+    },
+
+    // Create initial user data
+    async createUserData(userData: UserData): Promise<void> {
+        try {
+            const userDataRef = doc(db, "users", userData.id)
+            await setDoc(userDataRef, {
+                ...userData,
+                created_at: Timestamp.now(),
+                updated_at: Timestamp.now(),
+            })
+        } catch (error) {
+            console.error("Error creating user data:", error)
+            throw error
+        }
+    },
+
+    // Get all users data
+    async getAllUsersData(): Promise<UserData[]> {
+        try {
+            const querySnapshot = await getDocs(collection(db, "users"))
+            return querySnapshot.docs.map(
+                (doc) =>
+                    ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }) as UserData,
+            )
+        } catch (error) {
+            console.error("Error fetching all users data:", error)
+            throw error
+        }
+    },
+
+    // Get users data by role
+    async getUsersDataByRole(role: "student" | "teacher" | "admin"): Promise<UserData[]> {
+        try {
+            const q = query(collection(db, "users"), where("role", "==", role))
+            const querySnapshot = await getDocs(q)
+            return querySnapshot.docs.map(
+                (doc) =>
+                    ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }) as UserData,
+            )
+        } catch (error) {
+            console.error("Error fetching users data by role:", error)
+            throw error
+        }
+    },
+
+    // Search users by name or email
+    async searchUsers(searchTerm: string): Promise<UserData[]> {
+        try {
+            const allUsers = await this.getAllUsersData()
+            const searchLower = searchTerm.toLowerCase()
+
+            return allUsers.filter(user =>
+                user.name.toLowerCase().includes(searchLower) ||
+                user.email.toLowerCase().includes(searchLower)
+            )
+        } catch (error) {
+            console.error("Error searching users:", error)
+            throw error
+        }
+    },
+
+    // Get users with pagination
+    async getUsersWithPagination(limitCount: number = 20): Promise<UserData[]> {
+        try {
+            const q = query(
+                collection(db, "users"),
+                orderBy("created_at", "desc"),
+                limit(limitCount)
+            )
+            const querySnapshot = await getDocs(q)
+            return querySnapshot.docs.map(
+                (doc) =>
+                    ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }) as UserData,
+            )
+        } catch (error) {
+            console.error("Error fetching users with pagination:", error)
+            throw error
+        }
+    },
+
+    // Delete user data
+    async deleteUserData(userId: string): Promise<void> {
+        try {
+            await deleteDoc(doc(db, "users", userId))
+        } catch (error) {
+            console.error("Error deleting user data:", error)
+            throw error
+        }
+    },
+
+    // Batch update users data
+    async batchUpdateUsersData(
+        updates: Array<{ userId: string; data: Partial<UserData> }>
+    ): Promise<void> {
+        try {
+            const updatePromises = updates.map(({ userId, data }) =>
+                this.updateUserData(userId, data)
+            )
+            await Promise.all(updatePromises)
+        } catch (error) {
+            console.error("Error batch updating users data:", error)
+            throw error
+        }
+    },
+}
+
 // Settings Service
 export const settingsService = {
     // Get user settings
@@ -618,14 +789,23 @@ export const adminService = {
     // Get dashboard statistics
     async getDashboardStats() {
         try {
-            const [teachers, classes, students] = await Promise.all([
+            const [teachers, classes, students, allUsers] = await Promise.all([
                 teacherService.getAllTeachers(),
                 classService.getAllClasses(),
                 studentService.getAllStudents(),
+                userDataService.getAllUsersData(),
             ])
 
             const activeClasses = classes.filter((c) => c.class_status === "active")
+            const completedClasses = classes.filter((c) => c.class_status === "completed")
             const teachersWithActiveClasses = new Set(activeClasses.map((c) => c.teacher_id)).size
+
+            // Calculate enrollment statistics
+            const totalEnrollments = classes.reduce((sum, cls) => sum + (cls.enrolled_students?.length || 0), 0)
+            const avgEnrollmentPerClass = classes.length > 0 ? totalEnrollments / classes.length : 0
+
+            // Calculate completion rate
+            const completionRate = classes.length > 0 ? (completedClasses.length / classes.length) * 100 : 0
 
             return {
                 totalTeachers: teachers.length,
@@ -633,11 +813,122 @@ export const adminService = {
                 totalClasses: classes.length,
                 activeClasses: activeClasses.length,
                 totalStudents: students.length,
-                completedClasses: classes.filter((c) => c.class_status === "completed").length,
+                completedClasses: completedClasses.length,
+                totalUsers: allUsers.length,
+                totalEnrollments,
+                avgEnrollmentPerClass: Math.round(avgEnrollmentPerClass * 10) / 10,
+                completionRate: Math.round(completionRate * 10) / 10,
+                usersByRole: {
+                    students: allUsers.filter(u => u.role === 'student').length,
+                    teachers: allUsers.filter(u => u.role === 'teacher').length,
+                    admins: allUsers.filter(u => u.role === 'admin').length,
+                }
             }
         } catch (error) {
             console.error("Error fetching dashboard stats:", error)
             throw error
         }
     },
+
+    // Get user growth data for charts
+    async getUserGrowthData(days: number = 30): Promise<Array<{ date: string; users: number }>> {
+        try {
+            const allUsers = await userDataService.getAllUsersData()
+            const now = new Date()
+            const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
+
+            // Group users by date
+            const usersByDate: { [key: string]: number } = {}
+
+            // Initialize all dates with 0
+            for (let i = 0; i < days; i++) {
+                const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000)
+                const dateStr = date.toISOString().split('T')[0]
+                usersByDate[dateStr] = 0
+            }
+
+            // Count users by creation date
+            allUsers.forEach(user => {
+                if (user.created_at) {
+                    const userDate = user.created_at.toDate()
+                    if (userDate >= startDate) {
+                        const dateStr = userDate.toISOString().split('T')[0]
+                        if (usersByDate[dateStr] !== undefined) {
+                            usersByDate[dateStr]++
+                        }
+                    }
+                }
+            })
+
+            return Object.entries(usersByDate).map(([date, users]) => ({
+                date,
+                users
+            }))
+        } catch (error) {
+            console.error("Error fetching user growth data:", error)
+            return []
+        }
+    },
+
+    // Get class statistics by status
+    async getClassStatsByStatus(): Promise<Array<{ status: string; count: number }>> {
+        try {
+            const classes = await classService.getAllClasses()
+            const statsByStatus: { [key: string]: number } = {
+                active: 0,
+                inactive: 0,
+                completed: 0
+            }
+
+            classes.forEach(cls => {
+                statsByStatus[cls.class_status] = (statsByStatus[cls.class_status] || 0) + 1
+            })
+
+            return Object.entries(statsByStatus).map(([status, count]) => ({
+                status,
+                count
+            }))
+        } catch (error) {
+            console.error("Error fetching class stats by status:", error)
+            return []
+        }
+    },
+
+    // Get enrollment trends
+    async getEnrollmentTrends(days: number = 30): Promise<Array<{ date: string; enrollments: number }>> {
+        try {
+            const classes = await classService.getAllClasses()
+            const now = new Date()
+            const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
+
+            // Initialize dates
+            const enrollmentsByDate: { [key: string]: number } = {}
+            for (let i = 0; i < days; i++) {
+                const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000)
+                const dateStr = date.toISOString().split('T')[0]
+                enrollmentsByDate[dateStr] = 0
+            }
+
+            // Count enrollments by class creation date (approximation)
+            classes.forEach(cls => {
+                if (cls.created_at) {
+                    const classDate = cls.created_at.toDate()
+                    if (classDate >= startDate) {
+                        const dateStr = classDate.toISOString().split('T')[0]
+                        if (enrollmentsByDate[dateStr] !== undefined) {
+                            enrollmentsByDate[dateStr] += cls.enrolled_students?.length || 0
+                        }
+                    }
+                }
+            })
+
+            return Object.entries(enrollmentsByDate).map(([date, enrollments]) => ({
+                date,
+                enrollments
+            }))
+        } catch (error) {
+            console.error("Error fetching enrollment trends:", error)
+            return []
+        }
+    }
 }

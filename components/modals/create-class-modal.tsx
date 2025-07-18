@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Clock, Users, LinkIcon, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -21,6 +21,7 @@ interface CreateClassModalProps {
 export default function CreateClassModal({ isOpen, onClose, onSuccess }: CreateClassModalProps) {
     const { user } = useAuth()
     const [loading, setLoading] = useState(false)
+    const [minDateTime, setMinDateTime] = useState("")
     const [formData, setFormData] = useState({
         class_title: "",
         start_time: "",
@@ -31,9 +32,38 @@ export default function CreateClassModal({ isOpen, onClose, onSuccess }: CreateC
         duration: "",
     })
 
+    useEffect(() => {
+        // Set minimum datetime to current time
+        const now = new Date()
+        const currentDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+            .toISOString()
+            .slice(0, 16)
+        setMinDateTime(currentDateTime)
+    }, [])
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!user) return
+
+        // Validate times are not in the past using device time
+        const now = new Date(Date.now())
+        const startTime = new Date(formData.start_time)
+        const endTime = new Date(formData.end_time)
+
+        if (startTime < now) {
+            alert("Start time cannot be in the past")
+            return
+        }
+
+        if (endTime < now) {
+            alert("End time cannot be in the past")
+            return
+        }
+
+        if (endTime <= startTime) {
+            alert("End time must be after start time")
+            return
+        }
 
         setLoading(true)
         try {
@@ -74,6 +104,22 @@ export default function CreateClassModal({ isOpen, onClose, onSuccess }: CreateC
 
     const handleInputChange = (field: string, value: string | number) => {
         setFormData((prev) => ({ ...prev, [field]: value }))
+
+        // If start time is changed, update minimum end time
+        if (field === "start_time" && typeof value === "string") {
+            const startTime = new Date(value)
+            if (formData.end_time) {
+                const endTime = new Date(formData.end_time)
+                if (endTime <= startTime) {
+                    // Set end time to 1 hour after start time
+                    const newEndTime = new Date(startTime.getTime() + 60 * 60 * 1000)
+                    const endDateTime = new Date(newEndTime.getTime() - newEndTime.getTimezoneOffset() * 60000)
+                        .toISOString()
+                        .slice(0, 16)
+                    setFormData((prev) => ({ ...prev, end_time: endDateTime }))
+                }
+            }
+        }
     }
 
     return (
@@ -132,6 +178,7 @@ export default function CreateClassModal({ isOpen, onClose, onSuccess }: CreateC
                                     <Input
                                         id="start_time"
                                         type="datetime-local"
+                                        min={minDateTime}
                                         value={formData.start_time}
                                         onChange={(e) => handleInputChange("start_time", e.target.value)}
                                         required
@@ -146,6 +193,7 @@ export default function CreateClassModal({ isOpen, onClose, onSuccess }: CreateC
                                     <Input
                                         id="end_time"
                                         type="datetime-local"
+                                        min={formData.start_time || minDateTime}
                                         value={formData.end_time}
                                         onChange={(e) => handleInputChange("end_time", e.target.value)}
                                         required
